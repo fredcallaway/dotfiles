@@ -1,0 +1,41 @@
+[user]
+	email = fredc@llaway.com
+	name = fredcallaway
+[core]
+	excludesfile = /Users/fred/.gitignore_global
+	pager = /usr/local/bin/diff-so-fancy | less --tabs=4 -RFX
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[pull]
+	rebase = false
+[init]
+	defaultBranch = master
+[merge]
+	tool = smerge
+[mergetool "smerge"]
+	cmd = smerge mergetool \"$BASE\" \"$LOCAL\" \"$REMOTE\" -o \"$MERGED\"
+[alias]
+	whatadded = log --diff-filter=A
+[color]
+	ui = true
+[color "diff-highlight"]
+	# oldNormal = red
+	# oldHighlight = red bold
+	# newNormal = green
+	# newHighlight = green bold
+	oldNormal = red
+	oldHighlight = yellow reverse
+	newNormal = green
+	newHighlight = yellow reverse
+[color "diff"]
+	meta = yellow
+	frag = magenta bold
+	commit = yellow bold
+	old = red
+	new = green
+	whitespace = red reverse
+[diff-so-fancy]
+	first-run = false

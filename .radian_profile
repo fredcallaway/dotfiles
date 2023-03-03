@@ -1,0 +1,7 @@
+options(
+    radian.key_map = list(
+        list(key = "c-o", value = " %>% ")
+    ),
+    radian.auto_suggest = TRUE,
+    radian.complete_while_typing = FALSE
+)

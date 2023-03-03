@@ -1,0 +1,160 @@
+# config defaultToCurrentScreen true
+# config nudgePercentOf screenSize
+# config resizePercentOf screenSize
+
+# # Resize Bindings
+bind  pad3:ctrl       resize +10% +0
+bind  pad1:ctrl       resize -10% +0
+bind  pad6:ctrl       resize -10% +0 bottom-right
+bind  pad4:ctrl       resize +10% +0 bottom-right
+
+# # Push Bindings
+# bind right:ctrl;cmd  push right bar-resize:screenSizeX/3
+# bind left:ctrl;cmd   push left  bar-resize:screenSizeX/3
+# bind up:ctrl;cmd     push up    bar-resize:screenSizeY/2
+# bind down:ctrl;cmd   push down  bar-resize:screenSizeY/2
+
+# # Nudge Bindings
+# bind right:shift;alt nudge +10% +0
+# bind left:shift;alt  nudge -10% +0
+# bind up:shift;alt    nudge +0   -10%
+# bind down:shift;alt  nudge +0   +10%
+
+# # Throw Bindings
+# bind 1:ctrl;alt         throw 0 resize
+# bind 2:ctrl;alt         throw 1 resize
+# bind 3:ctrl;alt         throw 2 resize
+# bind right:ctrl;alt;cmd throw right resize
+# bind left:ctrl;alt;cmd  throw left  resize
+# bind up:ctrl;alt;cmd    throw up    resize
+# bind down:ctrl;alt;cmd  throw down  resize
+
+# # Focus Bindings
+# bind right:cmd    focus right
+# bind left:cmd     focus left
+# bind up:cmd       focus up
+# bind down:cmd     focus down
+# bind up:cmd;alt   focus behind
+# bind down:cmd;alt focus behind
+
+# # Window Hints
+# bind esc:cmd hint
+
+# Configs
+config defaultToCurrentScreen true
+config nudgePercentOf screenSize
+config resizePercentOf screenSize
+config secondsBetweenRepeat 0.1
+config checkDefaultsOnLoad true
+config focusCheckWidthMax 3000
+config keyboardLayout colemak
+config windowHintsShowIcons true
+config windowHintsIgnoreHiddenWindows false
+#config windowHintsDuration 5
+config windowHintsSpread true
+#config windowHintsOrder persist
+
+# Monitor Aliases
+alias mon-laptop      0
+alias mon-samsung    1
+
+# Misc Aliases
+alias focusHintsLeftHand hint AOEUIYQJKX
+alias focusNormalHint hint AOEUIDHTNSYXFBPKGMCW
+
+# Abstract positions
+alias originX (screenOriginX)
+alias sizeX (screenSizeX+4)
+
+alias full          move ${originX};screenOriginY                  ${sizeX};screenSizeY 0
+alias left      move ${originX};screenOriginY                  ${sizeX}/2;screenSizeY 0
+alias right     move ${originX}+${sizeX}/2;screenOriginY    ${sizeX}/2;screenSizeY 0
+
+# alias rightmost     move ${originX}+${sizeX}*0.4;screenOriginY  ${sizeX}*0.6;screenSizeY
+# alias rightless     move ${originX}+${sizeX}*0.6;screenOriginY  ${sizeX}*0.4;screenSizeY
+# alias leftmost      move ${originX};screenOriginY                  ${sizeX}*0.6;screenSizeY
+# alias leftless      move ${originX};screenOriginY                  ${sizeX}*0.4;screenSizeY
+
+alias top-right      move ${originX}+${sizeX}/2;screenOriginY ${sizeX}/2;screenSizeY*0.3 0
+alias bottom-right   move ${originX}+${sizeX}/2;screenOriginY+screenSizeY*0.3    ${sizeX}/2;screenSizeY*0.7 0
+
+alias left3   move ${originX};screenOriginY                  ${sizeX}*0.35;screenSizeY
+alias center3   move ${sizeX}*0.35;screenOriginY                  ${sizeX}*0.35;screenSizeY
+alias right3   move ${sizeX}*0.7;screenOriginY                  ${sizeX}*0.3;screenSizeY
+
+# Concrete positions
+alias 1-full        move ${originX};screenOriginY ${sizeX};screenSizeY         ${mon-laptop}
+alias 1-left        move ${originX};screenOriginY ${sizeX}/2;screenSizeY         ${mon-laptop}
+alias 1-right       move ${originX}+${sizeX}/2;screenOriginY ${sizeX}/2;screenSizeY         ${mon-laptop}
+alias 2-left        move ${originX};screenOriginY ${sizeX}/2;screenSizeY         ${mon-samsung}
+alias 2-right       move ${originX}+${sizeX}/2;screenOriginY ${sizeX}/2;screenSizeY         ${mon-samsung}
+alias 2-topright    move ${originX}+${sizeX}/2;screenOriginY ${sizeX}/2;screenSizeY/2       ${mon-samsung}
+alias 2-bottomright move ${originX}+${sizeX}/2;screenOriginY+screenSizeY/2    ${sizeX}/2;screenSizeY/2       ${mon-samsung}
+
+# Layouts
+
+layout coding 'Sublime Text':REPEAT              ${left}
+layout coding 'iTerm2':REPEAT                    ${right}
+# bind pad7 sequence layout coding | focus 'iTerm2' | focus 'Sublime Text'
+bind pad7 layout coding
+
+layout plotting 'Sublime Text':REPEAT              ${left}
+layout plotting 'iTerm2':REPEAT                    ${bottom-right}
+layout plotting 'Xee³':REPEAT                    ${top-right}
+# bind pad8 sequence layout plotting | focus 'iTerm2' | focus 'Xee³' | focus 'Sublime Text'
+bind pad8 layout plotting
+
+
+# Default Layouts
+default 2monitors resolutions:${mon-laptop};${mon-samsung};
+default coding  resolutions:${mon-laptop}
+
+# Numpad location Bindings
+# bind pad1 ${leftless}
+# bind pad2 push bottom bar-resize:screenSizeY/2
+# bind pad3 ${rightless}
+
+bind pad1 ${left}
+bind pad2 ${full}
+bind pad3 ${right}
+bind pad2:cmd ${full} next
+
+
+
+
+
+# bind pad1:cmd layout coding
+# bind pad2:cmd layout 2monitor
+
+# bind pad+-  ${focusNormalHint}
+
+# ======================================
+# The HYPER key
+# ======================================
+
+# alias hyper ctrl;shift;alt;cmd
+
+# # Location bindings
+# bind t:${hyper} ${left}
+# bind n:${hyper} ${full}
+# bind s:${hyper} ${right}
+# bind r:${hyper} throw next
+
+# # Resize Bindings
+# #bind r:${hyper} ${leftmost}
+# #bind g:${hyper} ${rightmost}
+
+# # Focus Bindings
+# bind right:${hyper}    focus right
+# bind left:${hyper}     focus left
+# bind up:${hyper}       focus up
+# bind down:${hyper}     focus down
+
+# # App bindings
+# bind e:${hyper} focus ${browser}
+# bind u:${hyper} focus ${editor}
+# bind x:${hyper} focus 'Xcode'
+# bind g:${hyper} focus 'GitHub'
+# bind m:${hyper} focus 'Mail'
+# bind i:${hyper} focus 'iTerm2'
+# bind o:${hyper} focus 'Path Finder'
