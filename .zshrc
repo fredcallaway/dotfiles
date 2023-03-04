@@ -18,6 +18,7 @@ alias gd='git diff'
 alias x='xplr'
 
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias lfig='lazygit --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 # ---------- key bindings ---------- #
 
