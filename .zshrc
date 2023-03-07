@@ -153,17 +153,6 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 # bindkey '^r' fzf-history-widget # r for reverse history search
 # bindkey '^f' fzf-file-widget # f for file
 
-# ---------- broot ---------- #
-
-function br {
-    emulate -L zsh
-    (){ broot --outcmd $1 ${@:2} && source $1 } =() $@
-}
-
-function tree {
-     br -c :pt "$@"
-}
-
 # ---------- FUNCTIONS ---------- #
 
 function iterm {
@@ -266,11 +255,7 @@ if [ -f ".localrc" ]; then
     source .localrc
 fi
 
-
 autoload -U compinit && compinit -u
 compdef __zoxide_z_complete j
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-
-source /Users/fred/.config/broot/launcher/bash/br
