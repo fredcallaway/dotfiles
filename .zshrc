@@ -98,7 +98,7 @@ zinit wait lucid from"gh-r" as"null" for \
 
 zi for \
     https://github.com/junegunn/fzf/raw/master/shell/{'completion','key-bindings'}.zsh \
-    pick"async.zsh" src"pure.zsh" fredcallaway/pure \
+    pick"async.zsh" src"pure.zsh" fredcallaway/pure
 
 zinit ice as"command" from"gh-r" lucid \
   mv"zoxide*/zoxide -> zoxide" \
@@ -120,10 +120,13 @@ export BAT_THEME="Dracula"
 
 # ---------- completion ---------- #
 
-users=()
-zstyle ':completion:*:ssh:*' users $users
-hosts=($(egrep '^Host.*' $HOME/.ssh/config | awk '{print $2}' | grep -v '^*' | sed -e 's/\.*\*$//'))
-zstyle ':completion:*:ssh:*' hosts $hosts
+
+if [ -f "$HOME/.ssh/config" ]; then
+    users=()
+    zstyle ':completion:*:ssh:*' users $users
+    hosts=($(egrep '^Host.*' $HOME/.ssh/config | awk '{print $2}' | grep -v '^*' | sed -e 's/\.*\*$//'))
+    zstyle ':completion:*:ssh:*' hosts $hosts
+fi
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 
 function fssh {
