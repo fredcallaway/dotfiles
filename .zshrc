@@ -155,6 +155,25 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 
 # ---------- FUNCTIONS ---------- #
 
+function pv {
+    # file=$1
+    # ext="${file#*.}"
+    fullpath=`realpath $1`
+    mime=`file --mime-type -b $fullpath`
+    if echo $mime | grep 'text' -q ; then
+        subl -b --command "preview_file {\"file\": \"$fullpath\"}"
+    elif echo $mime | grep 'image' -q ; then
+        xee -g $fullpath
+    else
+        qlmanage -p $fullpath &> /dev/null
+    fi
+}
+
+
+function pushconfig {
+    config ls-tree --full-tree --name-only -r HEAD | rsync -a --files-from=- ~/ $1:~/
+}
+
 function iterm {
     printf "\033]1337;Custom=id=zebra:%s\a" "$*"
 }
