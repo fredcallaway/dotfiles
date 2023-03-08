@@ -5,7 +5,6 @@ alias grep='grep --color=auto'
 alias cp='cp -r'
 alias u='cd .. && ls'
 alias xee='open -a "Xee³"'
-alias ebp='subl -nw $HOME/.zshrc && source $HOME/.zshrc'
 alias r='radian'
 alias lg='lazygit'
 # alias tca='tmux -CC attach -t'
@@ -17,8 +16,27 @@ alias gd='git diff'
 
 alias x='xplr'
 
-alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-alias lfig='lazygit --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+# ---------- configuration tracking ---------- #
+
+alias confgit='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias confshow='lazygit --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+
+function conflist {
+    confgit ls-tree --full-tree --name-only -r HEAD
+}
+
+function confpush {
+    conflist | rsync -a --files-from=- ~/ $1:~/
+}
+
+function confedit {
+    file="`conflist | fzf --query=$1 -1`"
+    [ -z "$file" ] && return
+    subl -nw $file
+    confshow
+    [[ $file == ".zshrc" ]] && source $HOME/.zshrc
+}
+
 
 # ---------- key bindings ---------- #
 
@@ -167,11 +185,6 @@ function pv {
     else
         qlmanage -p $fullpath &> /dev/null
     fi
-}
-
-
-function pushconfig {
-    config ls-tree --full-tree --name-only -r HEAD | rsync -a --files-from=- ~/ $1:~/
 }
 
 function iterm {
