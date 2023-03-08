@@ -2346,14 +2346,11 @@ os.execute(
 
 require("xpm").setup({
   plugins = {
-    -- Let xpm manage itself
     'dtomvan/xpm.xplr',
     'sayanarijit/map.xplr',
-    -- 'sayanarijit/type-to-nav.xplr',
     'sayanarijit/find.xplr',
     'sayanarijit/zoxide.xplr',
     'sayanarijit/trash-cli.xplr'
-    -- 'Junker/nuke.xplr',
   },
   auto_install = true,
   auto_cleanup = true,
@@ -2395,44 +2392,6 @@ require("find").setup{
   refresh_screen_key = "ctrl-r",
 }
 
--- require("nuke").setup{
---   -- pager = "more", -- default: less -R
---   open = {
---     run_executables = true, -- default: false
---     custom = {
---       {extension = "jpg", command = "open -a Xee³ {}"},
---       {extension = "png", command = "open -a Xee³ {}"},
---       {extension = "html", command = "open -a Google\\ Chrome {}"},
---       {extension = "pdf", command = "open -a Skim {}"},
---       {mime_regex = ".*", command = "open {}"}
---     }
---   },
---   view = {
---     show_line_numbers = true, -- default: false
---     custom = {
---       {mime_regex = "image/.*", command = "open -ga Xee³ {}"},
---     }
---   },
---   smart_view = {
---     custom = {
---       {mime_regex = "image/.*", command = "open -ga Xee³ {}"},
---       {mime = "text/*", command = "bat {}"},
---       {extension = "rmd", command = "bat {}"},
-
---     }
---   }
--- }
-
--- local key = xplr.config.modes.builtin.default.key_bindings.on_key
-
--- key.v = {
---   help = "nuke",
---   messages = {"PopMode", {SwitchModeCustom = "nuke"}}
--- }
--- key["f3"] = xplr.config.modes.custom.nuke.key_bindings.on_key.v
--- key["enter"] = xplr.config.modes.custom.nuke.key_bindings.on_key.o
-
--- xplr.config.modes.builtin.search.key_bindings.on_key["ctrl-v"] = key.v
 
 -- ## Hooks -------------------------------------------------------------------
 --
