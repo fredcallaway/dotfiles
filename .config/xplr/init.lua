@@ -2352,10 +2352,13 @@ require("xpm").setup({
     'sayanarijit/zoxide.xplr',
     'sayanarijit/trash-cli.xplr',
     'sayanarijit/fzf.xplr',
+    'sayanarijit/dua-cli.xplr',
   },
   auto_install = true,
   auto_cleanup = true,
 })
+
+require("dua-cli").setup()
 
 require("zoxide").setup{
   key = "j",
