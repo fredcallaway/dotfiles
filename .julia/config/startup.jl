@@ -21,6 +21,23 @@ if isfile("Project.toml") && isfile("Manifest.toml")
     Pkg.activate(".")
 end
 
+
+import REPL
+import REPL.LineEdit
+
+const mykeys = Dict{Any,Any}(
+    # Up Arrow
+    "^o" => (s,o...)->(LineEdit.edit_insert(s, " |> ")),
+)
+
+function customize_keys(repl)
+    repl.interface = REPL.setup_interface(repl; extra_repl_keymap = mykeys)
+end
+
+atreplinit(customize_keys)
+
+
+
 # fix bug in this function
 #function Base._simplify_include_frames(trace)
 #    kept_frames = trues(length(trace))
