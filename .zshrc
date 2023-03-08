@@ -30,11 +30,11 @@ function confpush {
 }
 
 function confedit {
-    file="`conflist | fzf --query=$1 -1`"
-    [ -z "$file" ] && return
-    subl -nw $file
+    selection="`conflist | fzf --query=$1 -1`"
+    [ -z "$selection" ] && return
+    subl -nw "$HOME/$selection"
     confshow
-    [[ $file == ".zshrc" ]] && source $HOME/.zshrc
+    [[ $selection == ".zshrc" ]] && source $HOME/.zshrc
 }
 
 
