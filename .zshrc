@@ -241,10 +241,6 @@ function o {
     fi
 }
 
-function lsdl() {
-    \ls -tU "$HOME/Downloads" | head |nl
-}
-
 function mvdl() {
     result="`\ls --color=no -t ~/Downloads | fzf --query=$1 -1`"
     [ -z "$result" ] && return
@@ -273,13 +269,6 @@ function tca() {
     else
         echo "creating main session"
         tmux -CC new-session -s main
-    fi
-}
-function tca_test() {
-    if [[ -n $(pgrep tmux) ]]; then
-        echo yes
-    else
-        echo no
     fi
 }
 
