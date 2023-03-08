@@ -262,7 +262,7 @@ xplr.config.general.global_key_bindings = {
 --
 -- Type: [Style](https://xplr.dev/en/style)
 xplr.config.node_types.directory.style = {
-  fg = "Cyan",
+  fg = "Blue",
 }
 
 -- Metadata for the directory nodes.
@@ -300,8 +300,8 @@ xplr.config.node_types.file.meta.icon = "ƒ"
 --
 -- Type: [Style](https://xplr.dev/en/style)
 xplr.config.node_types.symlink.style = {
-  fg = "Magenta",
-  add_modifiers = { "Italic" },
+  fg = "Cyan",
+  -- add_modifiers = { "Italic" },
 }
 
 -- Metadata for the symlink nodes.
