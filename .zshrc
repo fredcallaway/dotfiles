@@ -156,8 +156,8 @@ function fssh {
 # export FZF_COMPLETION_TRIGGER='|'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 export FZF_CTRL_T_OPTS="--preview 'head -n 200 {}' --select-1 --exit-0"
-export FZF_CTRL_T_COMMAND='fd --type f --hidden --exclude .git --exclude .cache'
-export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND='fd --type f --hidden --exclude .git --exclude .cache --no-ignore-vcs'
+export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git --no-ignore-vcs'
 
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 --color=gutter:-1,bg+:-1
