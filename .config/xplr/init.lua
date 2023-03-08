@@ -2350,7 +2350,8 @@ require("xpm").setup({
     'sayanarijit/map.xplr',
     'sayanarijit/find.xplr',
     'sayanarijit/zoxide.xplr',
-    'sayanarijit/trash-cli.xplr'
+    'sayanarijit/trash-cli.xplr',
+    'sayanarijit/fzf.xplr',
   },
   auto_install = true,
   auto_cleanup = true,
@@ -2392,6 +2393,12 @@ require("find").setup{
   refresh_screen_key = "ctrl-r",
 }
 
+require("fzf").setup{
+  mode = "default",
+  key = "ctrl-f",
+  recursive = true,  -- If true, search all files under $PWD
+  enter_dir = false,  -- Enter if the result is directory
+}
 
 -- ## Hooks -------------------------------------------------------------------
 --
