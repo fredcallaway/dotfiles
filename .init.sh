@@ -4,21 +4,23 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 
 conda install numpy scipy pandas
-
-conda install ipython jupytery
+conda install ipython jupyter
 
 pip install scikit-optimize
 pip install seaborn toolz
 pip install trash-cli
 
+# dua cli
+curl -LSfs https://raw.githubusercontent.com/Byron/dua-cli/master/ci/install.sh | \
+    sh -s -- --git Byron/dua-cli --crate dua --tag v2.17.4
 
-# Fzf
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
+# # Fzf
+# git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+# ~/.fzf/install
 
-# Autojump
-git clone git://github.com/wting/autojump.git
-cd autojump && ./install.py
+# # Autojump
+# git clone git://github.com/wting/autojump.git
+# cd autojump && ./install.py
 
 
 # Up arrow searches through partial matches
