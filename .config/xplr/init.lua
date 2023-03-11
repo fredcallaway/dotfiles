@@ -579,6 +579,17 @@ xplr.config.modes.builtin.default = {
   name = "default",
   key_bindings = {
     on_key = {
+      ["y"] = {
+        help = "copy file path",
+        messages = {
+          {
+            BashExecSilently = [===[
+            cat "${XPLR_PIPE_RESULT_OUT:?}" | pbcopy
+            ]===],
+          },
+          "PopMode",
+        },
+      },
       ["o"] = {
         help = "open (background)",
         messages = {
@@ -2357,6 +2368,7 @@ require("xpm").setup({
   auto_install = true,
   auto_cleanup = true,
 })
+
 
 require("dua-cli").setup()
 
