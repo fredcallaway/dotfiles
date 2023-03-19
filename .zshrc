@@ -161,8 +161,8 @@ export FZF_CTRL_T_OPTS="--preview 'head -n 200 {}' --select-1 --exit-0"
 
 alias fd='fd --exclude .git --exclude .cache --no-ignore-vcs'
 
-export FZF_CTRL_T_COMMAND='fd --type f'
-export FZF_ALT_C_COMMAND='fd --type d'
+export FZF_CTRL_T_COMMAND='fd --no-ignore-vcs --type f'
+export FZF_ALT_C_COMMAND='fd --no-ignore-vcs --type d'
 
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 --color=gutter:-1,bg+:-1
@@ -285,3 +285,32 @@ autoload -U compinit && compinit -u
 compdef __zoxide_z_complete j
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+_zlf() {
+    emulate -L zsh
+    local d=$(mktemp -d) || return 1
+    {
+        mkfifo -m 600 $d/fifo || return 1
+        tmux split -f zsh -c "exec {ZLE_FIFO}>$d/fifo; export ZLE_FIFO; exec lf" || return 1
+        local fd
+        exec {fd}<$d/fifo
+        zle -Fw $fd _zlf_handler
+    } always {
+        rm -rf $d
+    }
+}
+zle -N _zlf
+bindkey '^f' _zlf
+
+_zlf_handler() {
+    emulate -L zsh
+    local line
+    if ! read -r line <&$1; then
+        zle -F $1
+        exec {1}<&-
+        return 1
+    fi
+    eval $line
+    zle -R
+}
+zle -N _zlf_handler
