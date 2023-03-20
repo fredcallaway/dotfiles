@@ -51,6 +51,8 @@ bindkey '^f' fzf-file-widget
 
 # ---------- misc ---------- #
 
+export LS_COLORS='di=34:or=31:ln=36:ex=32'
+
 setopt histignorealldups sharehistory
 HISTSIZE=10000
 SAVEHIST=10000
