@@ -32,6 +32,7 @@ cmd link %{{
 map P :link
 
 cmd trash %trash-put $fx
+map d :trash
 
 cmd zle-cd %printf 'cd %q && zle reset-prompt\n' "$PWD" >&$ZLE_FIFO
 
