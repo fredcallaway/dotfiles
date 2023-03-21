@@ -21,6 +21,11 @@ alias x='xplr'
 alias confgit='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 alias confshow='lazygit --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
+function confadd {
+    confgit add $1
+    confgit commit -m "add `basename $1`"
+}
+
 function conflist {
     confgit ls-tree --full-tree --name-only -r HEAD
 }
