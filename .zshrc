@@ -11,6 +11,7 @@ alias lg='lazygit'
 alias tnew='tmux -CC new-session -s'
 
 alias gwd='git diff --word-diff'
+alias gco='git checkout'
 alias gcm='git checkout main'
 alias gd='git diff'
 
