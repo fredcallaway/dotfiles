@@ -43,6 +43,11 @@ cmd jump ${{
 
 map j jump
 
+cmd subl ${{
+    subl .
+}}
+
+map S subl
 
 # zsh insertion/cd widget
 cmd zle-insert-relative %{{
