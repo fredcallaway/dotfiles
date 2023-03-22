@@ -19,7 +19,7 @@ async def create_window(connection, project, folder=None, ssh=None):
         tmux = '~/bin/tmux'
     folder = os.path.expanduser(folder).replace(' ','\\ ')
     cmd = rf'''
-        {tmux} -CC new-session -A -s {project} "cd {folder} && /bin/zsh -ic '/usr/local/bin/xplr'"
+        {tmux} -CC new-session -A -s {project} "cd {folder} && /bin/zsh -ic '~/bin/lf'"
     '''.strip()
     print('command', cmd)
         # {tmux} -CC new-session -A -s {project}
