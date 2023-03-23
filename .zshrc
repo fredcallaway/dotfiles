@@ -255,12 +255,11 @@ function o {
 }
 
 function mvdl() {
-    result="`\ls --color=no -t ~/Downloads | fzf --query=$1 -1`"
+    result="`\ls --color=no -t ~/Downloads | fzf --query=$1 -1 -m`"
     [ -z "$result" ] && return
-    dest="./$result"
-    vared -p "mv '~/Downloads/$result' " dest
-    echo "mv ~/Downloads/$result $dest"
-    mv ~/Downloads/$result $dest
+    echo $result | while read -r f; do
+        mv "$HOME/Downloads/$f" .
+    done
 }
 
 # Smart cd function. cd to parent dir if file is given.
