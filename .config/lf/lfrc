@@ -6,8 +6,60 @@ map i open
 map n updir
 
 set findlen 2
-set sortby time
-set reverse
+# set sortby time
+# set reverse
+
+cmd trash-restore ${{
+    trash-list |
+        grep " $PWD/" |
+        fzf --multi |
+        cut -d' ' -f3- |
+        while IFS= read -r line; do
+            [ -n $line ] && yes 0 | trash-restore -- $line > /dev/null
+        done
+}}
+
+map D trash-restore
+
+# TODO: this should be done in python
+cmd cut-add %{{
+    files=$(cat ~/.local/share/lf/files | tail -n +2)
+    echo $fx >> ~/.local/share/lf/files
+
+    newline=$'\n'
+    # lf -remote "save${newline}move${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+map Y cut-add
+
+# cmd cut-remove %{{
+#     files=$(lf -remote load)
+#     operation=$(echo "$files" | head -n1)
+
+#     if [ "$operation" != "move" ]; then
+#         lf -remote "send $id echoerr no files in cut list."
+#         exit 1
+#     fi
+
+#     files=$(echo "$files" | tail -n +2)
+#     newline=$'\n'
+
+#     # change to $fx to remove current file when no toggled
+#     # files exist.
+#     if [ -n "$files" ]; then
+#         # here we want all files in $files that aren't in $fs, making sure
+#         # that none of the entries in $fs are included, even when they aren't
+#         # in $files. To do this we concatenate $files and $fs (twice), printing
+#         # only the uniqe lines.
+#         new_files=$(echo "$files$newline$fs$newline$fs" | sort | uniq -u)
+#     else
+#         new_files=$files
+#     fi
+#     new_files=$(echo "$new_files" | sed --quiet -e '/^$/d' -e 'p')
+
+#     lf -remote "save${newline}move${newline}${new_files}${newline}"
+#     lf -remote "send $id unselect${newline}send $id sync"
+# }}
 
 map R $printf '%s\n' "`ls`" | renamer
 
@@ -23,9 +75,9 @@ cmd link %{{
     fi
     case "$mode" in
         # symbolically copy mode is indicating a soft link
-        copy) ln -sr -t . -- "$@";;
+        copy) gln -sr -t . -- "$@";;
         # while a move mode is indicating a hard link
-        move) ln -t . -- "$@";;
+        move) gln -t . -- "$@";;
     esac
     rm ~/.local/share/lf/files
     lf -remote "send clear"
@@ -34,6 +86,7 @@ map P :link
 
 cmd trash %trash-put $fx
 map d :trash
+map x :cut
 
 cmd zle-cd %printf 'cd %q && zle reset-prompt\n' "$PWD" >&$ZLE_FIFO
 
@@ -95,7 +148,7 @@ set shellopts '-eu'
 set ifs "\n"
 
 # leave some space at the top and the bottom of the screen
-set scrolloff 10
+# set scrolloff 10
 
 # Use the `dim` attribute instead of underline for the cursor in the preview pane
 # set cursorpreviewfmt "\033[7;2m"
@@ -104,7 +157,7 @@ set scrolloff 10
 map <enter> shell
 
 # execute current file (must be executable)
-map x $$f
+# map x $$f
 map X !$f
 
 # dedicated keys for file opener actions
@@ -151,6 +204,37 @@ cmd on-quit &{{
 
 
 set previewer ~/.config/lf/pv.sh
+
+${{
+    w=$(tput cols)
+    if [ $w -le 80 ]; then
+        lf -remote "send $id set ratios 1:2"
+    elif [ $w -le 160 ]; then
+        lf -remote "send $id set ratios 1:2:3"
+    else
+        lf -remote "send $id set ratios 1:2:3:5"
+    fi
+}}
+
+set mouse on
+
+cmd mkdir %{{
+    IFS=" "
+    mkdir -p -- "$*"
+    lf -remote "send $id select \"$*\""
+}}
+map m push :mkdir<space>
+
+cmd newfold ${{
+    mkdir -p -- "$*"
+    mv -- $fx "$*"
+    lf -remote "send $id select \"$*\""
+}}
+map M push :newfold<space>
+
+
+
+
 # map i $~/.config/lf/pv.sh $f | less -R
 
 # define a custom 'rename' command without prompt for overwrite
