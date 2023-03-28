@@ -3,9 +3,9 @@ width=${2:-30}
 height=${3:-100}
 
 case "$1" in
-    *.png) viu $1 --width $width;;
-    *.jpeg) viu $1 --width $width;;
-    *.jpg) viu $1 --width $width;;
+    *.png) viu -b $1 --width $width;;
+    *.jpeg) viu -b $1 --width $width;;
+    *.jpg) viu -b $1 --width $width;;
     *.tar*) tar tf "$1";;
     *.zip) unzip -l "$1";;
     *.rar) unrar l "$1";;
