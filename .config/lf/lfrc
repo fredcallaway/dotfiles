@@ -4,13 +4,56 @@ map u up
 map e down
 map i open
 map n updir
+map <esc> unselect
 
 set findlen 2
+# set hidden
+set incsearch
+set incfilter
+set scrolloff 4
+set tabstop 2
+set smartcase
+# set dircounts
+# set info size
+# set sortby natural
+set ratios '1:2:3'
+set timefmt '2006-01-02 15:04:05 -0700'
+set previewer ~/.config/lf/preview
+
+map y
+map c copy
+map CC clear
+cmd yank-path &printf '%s' "$fx" | pbcopy
+map yp yank-path
+
+cmd yank-base $basename -a -- $fx | head -c-1 | pbcopy
+map yb yank-base
+
+map gf $lf -remote "send $id select $(fzf)"
+
+set promptfmt "
+\033[33;1m%h\033[0m    \033[0m\033[1m%d\033[0m
+"
+
+map sg &tmux split-window -h lf
+map sv &tmux split-window -v lf
+
 # set sortby time
 # set reverse
 
+cmd doc ${{
+    lf -doc | bat -l md
+}}
+
+cmd select-tagged &{{
+    files=$(cat  ~/.local/share/lf/tags | tr -d ':*' | tr '\n' ' ')
+    lf -remote "send toggle $files"
+}}
+map T select-tagged
+
 cmd trash-restore ${{
     trash-list |
+        sort -r |
         grep " $PWD/" |
         fzf --multi |
         cut -d' ' -f3- |
@@ -19,18 +62,22 @@ cmd trash-restore ${{
         done
 }}
 
+
 map D trash-restore
 
-# TODO: this should be done in python
-cmd cut-add %{{
-    files=$(cat ~/.local/share/lf/files | tail -n +2)
-    echo $fx >> ~/.local/share/lf/files
+map l filter
 
-    newline=$'\n'
-    # lf -remote "save${newline}move${newline}${new_files}${newline}"
-    lf -remote "send $id unselect${newline}send $id sync"
-}}
-map Y cut-add
+# TODO: this should be done in python
+# cmd cut-add %{{
+#     files=$(cat ~/.local/share/lf/files | tail -n +2)
+#     echo "$fx" >> ~/.local/share/lf/files
+
+#     newline=$'\n'
+#     # lf -remote "save${newline}move${newline}${new_files}${newline}"
+#     lf -remote "send $id unselect"
+#     lf -remote "send sync"
+# }}
+# map Y cut-add
 
 # cmd cut-remove %{{
 #     files=$(lf -remote load)
@@ -127,7 +174,6 @@ cmd zle-init :{{
 
 ## DEFAULT ##
 
-
 # interpreter for shell commands
 set shell sh
 
@@ -142,7 +188,7 @@ set shellopts '-eu'
 
 # set internal field separator (IFS) to "\n" for shell commands
 # This is useful to automatically split file names in $fs and $fx properly
-# since default file separator used in these variables (i.e. 'filesep' option)
+# since default file separator used in these variables (i.e. '$' option)
 # is newline. You need to consider the values of these options and create your
 # commands accordingly.
 set ifs "\n"
@@ -231,8 +277,6 @@ cmd newfold ${{
     lf -remote "send $id select \"$*\""
 }}
 map M push :newfold<space>
-
-
 
 
 # map i $~/.config/lf/pv.sh $f | less -R
