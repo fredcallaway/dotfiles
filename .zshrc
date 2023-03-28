@@ -293,6 +293,8 @@ compdef __zoxide_z_complete j
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+# ---------- lf ---------- #
+
 _zlf() {
     emulate -L zsh
     local d=$(mktemp -d) || return 1
@@ -321,3 +323,10 @@ _zlf_handler() {
     zle -R
 }
 zle -N _zlf_handler
+
+LFCD="$HOME/.config/lf/lfcd.sh"
+if [ -f "$LFCD" ]; then
+    source "$LFCD"
+fi
+
+alias lf="lfcd"
