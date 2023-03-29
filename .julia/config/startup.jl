@@ -21,14 +21,52 @@ if isfile("Project.toml") && isfile("Manifest.toml")
     Pkg.activate(".")
 end
 
+function execute(cmd::Cmd)
+  out = Pipe()
+  err = Pipe()
+
+  process = run(pipeline(ignorestatus(cmd), stdout=out, stderr=err))
+  close(out.in)
+  close(err.in)
+  stdout = @async String(read(out))
+  stderr = @async String(read(err))
+  (
+    stdout = String(read(out)),
+    stderr = String(read(err)),
+    code = process.exitcode
+  )
+end
+
+execute(cmd::String) = execute(`bash -c $cmd`)
 
 import REPL
 import REPL.LineEdit
 
 const mykeys = Dict{Any,Any}(
-    # Up Arrow
     "^o" => (s,o...)->(LineEdit.edit_insert(s, " |> ")),
+    "^n" => (s,o...) -> begin
+        LineEdit.edit_insert(s, "include(\"\")")
+        LineEdit.edit_move_left(s)
+        LineEdit.edit_move_left(s)
+    end,
 )
+
+try
+    import JLFzf
+    mykeys["^r"] = function (s, o, c)
+        line = JLFzf.inter_fzf(JLFzf.read_repl_hist(),
+        "--read0",
+        "--tiebreak=index",
+        "--height=30%");
+        JLFzf.insert_history_to_repl(s, line)
+    end
+    mykeys["^n"] = function (s, o, c)
+        file = JLFzf.inter_fzf(execute("fd .*\\.jl").stdout, "--height=30%")
+        LineEdit.edit_insert(s, "include(\"$file\")")
+        LineEdit.commit_line(s)
+    end
+catch
+end
 
 function customize_keys(repl)
     repl.interface = REPL.setup_interface(repl; extra_repl_keymap = mykeys)
