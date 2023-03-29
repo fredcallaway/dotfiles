@@ -45,7 +45,7 @@ async def get_window(app, project, file_name=None):
     window = app.get_window_by_id(WINDOW_IDS.get(project))
     if window != None:
         return window
-    print('looking for window')
+    print('looking for window...')
     for window in app.windows:
         try:
             status = await window.current_tab.current_session.async_get_variable('tmuxStatusLeft')
@@ -53,17 +53,18 @@ async def get_window(app, project, file_name=None):
             pass
         else:
             this_project = status[2:-3] if status else None  # e.g.  "[ main ]"
-            print('  ', this_project)
             if this_project == project:
                 WINDOW_IDS[project] = window.window_id
+                print('  found it!')
                 return window
 
 async def get_tab(app, file_name):
-    for tab in app.current_window.tabs:
-        # could try getting a more specific variable here
-        title = await tab.async_get_variable('title')
-        if title[2:] == file_name:
-            return tab
+    if app.current_window:
+        for tab in app.current_window.tabs:
+            # could try getting a more specific variable here
+            title = await tab.async_get_variable('title')
+            if title[2:] == file_name:
+                return tab
 
 def project_name(session):
     print('session_name is ', session.name)
