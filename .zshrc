@@ -9,13 +9,16 @@ alias r='radian'
 alias lg='lazygit'
 # alias tca='tmux -CC attach -t'
 alias tnew='tmux -CC new-session -s'
+alias x='xplr'
 
 alias gwd='git diff --word-diff'
 alias gco='git checkout'
 alias gcm='git checkout main'
 alias gd='git diff'
 
-alias x='xplr'
+
+command -v duf &> /dev/null && \
+    alias df='duf --hide-mp "*.timemachine*","*ystem*","*private*" -only local'
 
 # ---------- configuration tracking ---------- #
 
@@ -294,6 +297,10 @@ compdef __zoxide_z_complete j
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # ---------- lf ---------- #
+
+function tag {
+    echo `realpath $1`":*" >> ~/.local/share/lf/tags
+}
 
 _zlf() {
     emulate -L zsh
