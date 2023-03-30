@@ -147,8 +147,10 @@ class Commander(object):
         for session in self.app.buried_sessions:
             if project_name(session) == self.project:
                 logging.info('CloseTerm: found session')
-                await session.async_close()
-                logging.info('CloseTerm: session closed')
+                try:
+                    await session.async_close()
+                except:
+                    print('Unable to close session')
                 return
 
     async def lazy_git(self):
