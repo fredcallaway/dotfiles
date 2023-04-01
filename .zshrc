@@ -189,6 +189,10 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 
 # ---------- FUNCTIONS ---------- #
 
+function sdo {
+    tmux split "echo $1; $1; zsh"
+}
+
 function pv {
     # file=$1
     # ext="${file#*.}"
@@ -225,7 +229,7 @@ function s {
     if [ -z $1 ]; then
         subl .
     else
-        subl $1
+        subl -n $1
     fi
 }
 
