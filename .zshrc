@@ -306,38 +306,60 @@ function tag {
     echo `realpath $1`":*" >> ~/.local/share/lf/tags
 }
 
-_zlf() {
-    emulate -L zsh
-    local d=$(mktemp -d) || return 1
-    {
-        mkfifo -m 600 $d/fifo || return 1
-        tmux split -f zsh -c "exec {ZLE_FIFO}>$d/fifo; export ZLE_FIFO; exec lf" || return 1
-        local fd
-        exec {fd}<$d/fifo
-        zle -Fw $fd _zlf_handler
-    } always {
-        rm -rf $d
-    }
-}
-zle -N _zlf
-bindkey '^f' _zlf
-
-_zlf_handler() {
-    emulate -L zsh
-    local line
-    if ! read -r line <&$1; then
-        zle -F $1
-        exec {1}<&-
-        return 1
-    fi
-    eval $line
-    zle -R
-}
-zle -N _zlf_handler
-
 LFCD="$HOME/.config/lf/lfcd.sh"
 if [ -f "$LFCD" ]; then
     source "$LFCD"
 fi
 
 alias lf="lfcd"
+
+# ---------- selection widgets ---------- #
+
+insert-setup () {
+  echoti rmkx
+  zle autosuggest-clear
+  zle autosuggest-disable
+}
+
+insert-do () {
+  BUFFER+=$1
+  (( CURSOR+=$#1 ))
+  zle autosuggest-enable
+  .zle_redraw-prompt
+}
+
+.zle_insert-path-lf () {
+  insert-setup
+  echo > /tmp/lf_insert
+  command lf -command inserter
+  local result=`cat /tmp/lf_insert`
+  insert-do $result
+}
+zle -N .zle_insert-path-lf
+bindkey '^f' .zle_insert-path-lf
+
+.zle_insert-path-zoxide () {
+  insert-setup
+  local result="$(zoxide query -i)"
+  insert-do $result
+}
+zle -N .zle_insert-path-zoxide
+bindkey '^j' .zle_insert-path-zoxide
+
+.zle_insert-path-broot () {
+  insert-setup
+  local result="${(q-)$(<$TTY broot --color yes --conf "${HOME}/.config/broot/select.hjson;${HOME}/.config/broot/conf.hjson")} "
+  insert-do $result
+}
+zle -N .zle_insert-path-broot
+bindkey '^b' .zle_insert-path-broot  # ctrl+alt+down
+
+.zle_redraw-prompt () {
+  # Credit: romkatv/z4h
+  emulate -L zsh
+  for 1 ( chpwd $chpwd_functions precmd $precmd_functions ) {
+    if (( $+functions[$1] ))  $1 &>/dev/null
+  }
+  zle .reset-prompt
+  zle -R
+}
