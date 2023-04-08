@@ -183,7 +183,11 @@ async def main(connection):
     app = await iterm2.async_get_app(connection)
 
     while True:
-        msg = read_message()
+        try:
+            msg = read_message()
+        except json.decoder.JSONDecodeError:
+            print("JSON decoding error")
+            continue
         command = msg['command']
         print(command)
         commander = Commander(connection, app, msg['vars'])
@@ -196,7 +200,10 @@ async def main(connection):
             'LazyGit': commander.lazy_git,
         }.get(command, None)
         if handler:
-            await handler(**msg['kws'])
+            try:
+                await handler(**msg['kws'])
+            except iterm2.rpc.RPCException:
+                print("RPCException")
         else:
             print('No handler for', command)
 
