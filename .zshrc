@@ -83,6 +83,7 @@ else
 fi
 
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=247'
+export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # export ZSHZ_CASE=smart
 
 export PATH=$HOME/bin:$HOME/opt/miniconda3/bin:$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH
@@ -189,8 +190,35 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 
 # ---------- FUNCTIONS ---------- #
 
-function sdo {
-    tmux split "echo $1; $1; zsh"
+# function
+# xargs -n1 -I{} zsh -ic 'sdo "cd {}"'
+
+split-run () {
+    if [[ $# -eq 0 ]]; then
+        # read from stdin
+        local commands=()
+        while IFS= read -r line; do
+            commands+=( "$line" )
+        done
+        [ $#commands -gt 0 ] && split-run $commands
+    else
+        tmux new-window
+        sleep 0.01
+        if [[ $#@ -gt 1 ]]; then
+            for i in {2..$#@}; do tmux split; done
+        fi
+        tmux select-layout tiled
+        sleep 0.5
+        for i in {1..$#@}; do
+            cmd=$@[i]
+            let "pane = i - 1"
+            tmux send-keys -t $pane "$cmd" Enter
+        done
+    fi
+}
+
+sdo () {
+    echo $@ | tr ' ' '\n' | perl -pe 'chomp if eof' | subl -nw | cat - <(echo) | split-run
 }
 
 function pv {
@@ -344,7 +372,7 @@ bindkey '^f' .zle_insert-path-lf
   insert-do $result
 }
 zle -N .zle_insert-path-zoxide
-bindkey '^j' .zle_insert-path-zoxide
+bindkey '^p' .zle_insert-path-zoxide
 
 .zle_insert-path-broot () {
   insert-setup
