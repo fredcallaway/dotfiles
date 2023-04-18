@@ -3,9 +3,9 @@
 .workspace {
   --checklist-done-decoration:none;
   --checklist-done-color:#888;
-  --h1-weight: 400;
-  --h2-weight: 500;
-  --h3-weight: 500;
+  --h1-weight: 300;
+  --h2-weight: 400;
+  --h3-weight: 7600;
 
   --h1-size: 1.7em;
   --h2-size: 1.4em;
@@ -13,12 +13,31 @@
   --h4-size: 1.1em;
   --h5-size: 1em;
 
+/*  --background-primary: #282a36;*/
+  --current-line: #44475a;
+/*  --text-normal: #f8f8f2;*/
+  --comment: #6272a4;
+  --cyan: #8be9fd;
+  --green: #50fa7b;
+  --orange: #ffb86c;
+  --pink: #ff79c6;
+  --purple: #bd93f9;
+  --red: #ff5555;
+  --yellow: #f1fa8c;
+
+
 /*  --code-normal: ;*/
 
 /*  --h1-variant: small-caps;*/
-  --h3-style: italic;
+  --h2-style: italic;
+/*  --h3-variant: small-caps;*/
 /*  --h3-color: #bd93f9;*/
 }
+
+.cm-hashtag, .tag {
+  color: var(--green) !important;
+}
+
 
 .inline-title {
   font-weight: 100;
@@ -39,10 +58,10 @@
   text-decoration: none;
 }
 
-/*.qsp-path {
+.qsp-path {
   color: #7F7F7F;
 }
-*/
+
 /* suggestion file path icon */
 .qsp-path-indicator {
 /*  margin-right: 4px;*/
