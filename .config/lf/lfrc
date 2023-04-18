@@ -30,6 +30,23 @@ cmd yank-base $basename -a -- $fx | head -c-1 | pbcopy
 map yb yank-base
 
 map gf $lf -remote "send $id select $(fzf)"
+cmd fzf_search ${{
+    res="$( \
+        RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
+        FZF_DEFAULT_COMMAND="$RG_PREFIX ''" \
+            fzf --ansi \
+                --disabled \
+                --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true" \
+                \   # --multi \  # TODO doesn't work currently
+                --delimiter : \
+                --preview 'bat --color=always {1} --highlight-line {2}' \
+                --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+                --bind 'ctrl-e:become(subl {1}:{2})' \
+            | cut -d':' -f1  # TODO this only takes the first match
+    )"
+    [ ! -z "$res" ] && lf -remote "send $id toggle \"$res\""
+}}
+map gs :fzf_search
 
 set promptfmt "
 \033[33;1m%h\033[0m    \033[0m\033[1m%d\033[0m
@@ -61,7 +78,6 @@ cmd trash-restore ${{
             [ -n $line ] && yes 0 | trash-restore -- $line > /dev/null
         done
 }}
-
 
 map D trash-restore
 
