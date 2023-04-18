@@ -169,7 +169,13 @@ function fssh {
 # ---------- FUZZY FIND (fzf) ---------- #
 # export FZF_COMPLETION_TRIGGER='|'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
-export FZF_CTRL_T_OPTS="--preview 'head -n 200 {}' --select-1 --exit-0"
+
+export FZF_CTRL_T_OPTS="
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-v:change-preview-window(down|hidden|)'
+  --select-1 --exit-0
+"
+# export FZF_CTRL_T_OPTS="--preview 'head -n 200 {}' --select-1 --exit-0"
 
 alias fd='fd --exclude .git --exclude .cache --no-ignore-vcs'
 
@@ -327,6 +333,28 @@ autoload -U compinit && compinit -u
 compdef __zoxide_z_complete j
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# ---------- bibliography ---------- #
+
+BIBFILE=~/lib/zotero.bib
+function zot {
+    citekey=$(
+        bibtex-ls --cache=/tmp $BIBFILE |
+        fzf --ansi --height=20% --query=$1 |
+        bibtex-cite
+    )
+    open "zotero://select/items/$citekey"
+}
+
+# function cite {
+#     citekey=$(
+#         bibtex-ls --cache=/tmp $BIBFILE |
+#         fzf --ansi --height=20% --query=$1 |
+#         bibtex-cite |
+#         tr -d '@'
+#     )
+#     bibtool --print.align.key=0 --print.line.length=100 -X $citekey $BIBFILE | pbcopy
+# }
 
 # ---------- lf ---------- #
 
