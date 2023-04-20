@@ -37,14 +37,13 @@ cmd fzf_search ${{
             fzf --ansi \
                 --disabled \
                 --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true" \
-                \   # --multi \  # TODO doesn't work currently
                 --delimiter : \
                 --preview 'bat --color=always {1} --highlight-line {2}' \
                 --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
                 --bind 'ctrl-e:become(subl {1}:{2})' \
             | cut -d':' -f1  # TODO this only takes the first match
     )"
-    [ ! -z "$res" ] && lf -remote "send $id toggle \"$res\""
+    [ ! -z "$res" ] && lf -remote "send $id select \"$res\""
 }}
 map gs :fzf_search
 

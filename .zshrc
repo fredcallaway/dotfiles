@@ -15,6 +15,7 @@ alias gwd='git diff --word-diff'
 alias gco='git checkout'
 alias gcm='git checkout main'
 alias gd='git diff'
+alias rg='rg --no-ignore'
 
 
 command -v duf &> /dev/null && \
