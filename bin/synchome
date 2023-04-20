@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+rsync -av $HOME/ /Volumes/Files/home/ \
+    --exclude Dropbox \
+    --exclude meta \
+    --exclude Movies \
+    --exclude website \
+    --exclude dissertation \
+    --exclude Applications \
+    --exclude .Trash \
+    --exclude .julia \
+    --exclude .dropbox

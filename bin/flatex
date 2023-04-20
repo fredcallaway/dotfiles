@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+import re
+import subprocess
+from fire import Fire
+
+def bash(cmd):
+    subprocess.run(cmd, shell=True).check_returncode()
+
+def replace_one(match):
+    try:
+        input_file = match.group(1) + '.tex'
+        with open(input_file) as f:
+            tex = f.read().strip()
+        if tex.endswith('\\unskip'):
+            tex = tex[:-7]
+        return replace_inputs(tex)
+    except FileNotFoundError:
+        print(f'{input_file} not found. Skipping.')
+
+def replace_inputs(tex):
+    return re.sub(r'\\input{([^}]*)}', replace_one, tex)
+
+def replace_bib(tex, bbl):
+    with open(bbl) as f:
+        bib = f.read()
+    fun = lambda x: bib  # prevent processing escape codes
+    return re.sub(r'\\bibliography{([^}]*)}', fun, tex)
+
+def rename_figs(tex):
+    def process_fig(match):
+        fn = match.group(1)
+        new_fn = 'fig-' + fn.replace('/', '-')
+        bash(f'cp figures/{fn} {new_fn}')
+        return new_fn
+
+    return re.sub(r'figures/([^}]*)', process_fig, tex)
+    # match = re.search(r'\\includegraphics\[.*]{figures/([^}]*)}', tex)
+
+
+
+def main(base_file='main.tex', out_file='flat.tex', leave_bib = False):
+    with open(base_file) as f:
+        new = replace_inputs(f.read())
+        if not leave_bib:
+            new = replace_bib(new, base_file.replace('tex', 'bbl'))
+        new = rename_figs(new)
+
+    with open(out_file, 'w') as f:
+        f.write(new)
+    print('Wrote', out_file)
+
+if __name__ == '__main__':
+    Fire(main)

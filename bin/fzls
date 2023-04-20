@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+path=${1:-.}
+gls -tr --color $1 | fzf --ansi -m |
+while read line; do echo "$path/$line"; done

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+citekey=$(
+    bibtex-ls --cache=/tmp ~/lib/zotero.bib |
+    fzf --ansi --query=$1 |
+    bibtex-cite
+)
+
+open "zotero://select/items/$citekey"

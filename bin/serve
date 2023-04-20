@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+port=8000
+while [ $port -lt 8100 ]; do
+    static -p $port 2> /dev/null &
+    if [ $? -eq 0 ]; then
+        break
+    fi
+    port=$[port+1]
+done
+cmd="open -a '/Applications/Google Chrome.app' http://127.0.0.1:$port"
+echo $cmd
+eval $cmd

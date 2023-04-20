@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+
+import subprocess
+import os
+import click
+import sys
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from datetime import datetime
+
+class RunCommandHandler(FileSystemEventHandler):
+    """Runs a bash command whenever a file is modified."""
+    def __init__(self, cmd, exclude):
+        self.cmd = cmd
+        self.exclude_paths = list(map(os.path.abspath, exclude))
+        print(self.exclude_paths)
+        super().__init__()
+
+    # def on_created(self, event):
+    #     print('on_created', datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+    #     # bash(self.cmd)
+    
+    def on_modified(self, event):
+        event_path = os.path.abspath(event.src_path)
+        if any(event_path.startswith(excl_path) for excl_path in self.exclude_paths):
+            return  # ignored
+        print('\n\n---------- ' + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ' ----------')
+        bash(self.cmd)
+
+REMOTES = {
+    'juke': 'apps.pni:~/juke/',
+}
+
+def get_remote(remote):
+    return REMOTES.get(remote, f'{remote}:~/')
+
+DEFAULT_EXCLUDE = ".git __pycache__ *.so figs .fighist".split()
+BASE_CMD = 'rsync -a --inplace --copy-links ' + ' '.join('--exclude ' + e for e in DEFAULT_EXCLUDE)
+
+def bash(x, echo=True):
+    if echo:
+        print(x)
+    subprocess.run(x, shell=True)
+
+def get_paths(path, remote, remote_path):
+    local = os.path.abspath(path) + '/'
+    if not remote_path:
+        prefix = '/users/fred/projects/'
+        assert local.lower().startswith(prefix)
+        remote_path = local[len(prefix):]
+    remote = get_remote(remote) + remote_path
+    return local, remote
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.argument('path', default='.')
+@click.argument('remote', default='juke')
+@click.option('--delete-after', is_flag=True)
+@click.option('--exclude', '-e', multiple=True)
+@click.option('--remote-path', default='')
+@click.option('--quiet', is_flag=True)
+@click.option('--watch', is_flag=True)
+def push(path, remote, delete_after, exclude, remote_path, quiet, watch):
+    """Push a local directory to the server."""
+    delete = '--delete-after' if delete_after else ''
+    v = '' if quiet else '-v'
+    local, remote = get_paths(path, remote, remote_path)
+    cmd = f'{BASE_CMD} {v} {delete} {local} {remote}'
+    all_exclude = (*exclude, *load_ignore())
+    for e in all_exclude:
+        cmd += f' --exclude {e} '
+    bash(cmd)
+
+    if watch:
+        watch_run(path, cmd, all_exclude)
+
+def load_ignore():
+    if os.path.isfile('.jukeignore'):
+        with open('.jukeignore') as f:
+            for x in f:
+                yield x.strip()
+
+def watch_run(path, cmd, exclude):
+    # bash(f'fswatch -o . | while read f; do {cmd} ; done')
+    observer = Observer()
+    observer.schedule(RunCommandHandler(cmd, exclude), path, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+
+@cli.command()
+@click.argument('path', default='.')
+@click.argument('remote', default='juke')
+@click.option('--remote-path', default='')
+@click.option('--quiet', is_flag=True)
+def pull(path, remote, remote_path, quiet):
+    """Pull a remote directory to the local machine."""
+    local, remote = get_paths(path, remote, remote_path)
+    v = '' if quiet else '-v'
+    bash(f'{BASE_CMD} {v} {remote} {local}')
+
+
+if __name__ == '__main__':
+    cli()
+# {BASE_CMD} scotty:~/juke/choice-eye-tracking/pickles/ pickles/

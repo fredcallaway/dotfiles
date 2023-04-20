@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import pandas as pd
+from datetime import datetime, timedelta
+import subprocess
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+
+def bash(x):
+    return subprocess.check_output(x, shell=True).strip().decode()
+
+def parse_time(tstr):
+    t = datetime.strptime(tstr,"%H:%M:%S")
+    return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
+
+
+def parse(line):
+    time, cpu, mem = line.strip().split()
+    return {
+        'time': parse_time(time),
+        'cpu': parse_time(cpu),
+        'mem': float(mem[:-1]),
+    }
+
+def summarize(lines):
+    df = pd.DataFrame(map(parse, lines))
+    df['cpu_util'] = df.cpu / df.time
+    A = df.agg(['max', 'median', 'mean', 'min'])
+    A.time = A.time.apply(lambda x: x.seconds / 60).astype(int)
+    # A.time = A.time.apply(lambda x: x.round('1min'))
+    A.cpu_util = (100 * A.cpu_util).astype(int)
+    A.mem = A.mem.astype(int)
+    A.pop('cpu')
+    return A
+
+def main(job):
+    cmd = f'sacct --units=M --format="Elapsed,AveCPU,MaxRSS" -j {job}.batch'
+    out = bash(cmd)
+    lines = out.split('\n')[3::3]
+    print(len(lines), 'jobs')
+    print(summarize(lines))
+    
+if __name__ == '__main__':
+    parser = ArgumentParser(
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "job",
+        help=("Slurm job id"))
+    args = parser.parse_args()
+    main(args.job)
+    

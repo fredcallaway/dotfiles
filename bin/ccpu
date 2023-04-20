@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import subprocess
+
+def bash(x):
+    return subprocess.check_output(x, shell=True, stderr=subprocess.DEVNULL).decode().strip()
+
+def get_usage(machine, secs=3):
+    return bash(f'ssh  {machine} "mpstat {secs}' + ''' 1 | tail -1  | awk '{print \\$3}'" ''')
+
+
+if __name__ == '__main__':
+    machines = ['g1', 'g2']
+    print('  '.join(map(get_usage, machines)))

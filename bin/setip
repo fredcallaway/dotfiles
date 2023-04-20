@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+from argparse import ArgumentParser
+import subprocess
+
+parser = ArgumentParser()
+parser.add_argument('host')
+parser.add_argument('ip', nargs='?')
+args = parser.parse_args()
+
+if args.ip is None:
+    cmd = f"gcloud compute instances describe {args.host} --format='get(networkInterfaces[0].accessConfigs[0].natIP)'"
+    args.ip = subprocess.check_output(cmd, shell=True).decode().strip()
+
+with open('/Users/fred/.ssh/config') as f:
+    keep = []
+    for line in f:
+        keep.append(line)
+        if line == f'Host {args.host}\n':
+            print(f'Set IP of {args.host} to {args.ip}')
+            start, ip = next(f).rsplit(' ', 1)
+            keep.append(f'{start} {args.ip}\n')
+
+with open('/Users/fred/.ssh/config', 'w+') as f:
+    f.write(''.join(keep))
+

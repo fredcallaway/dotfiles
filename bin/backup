@@ -1,0 +1,27 @@
+rclone sync $HOME /Volumes/Files/home \
+    --checkers=4 \
+    --copy-links --progress --checkers=2\
+    --exclude=Dropbox/ \
+    --exclude=meta/ \
+    --exclude=Movies/ \
+    --exclude=website/ \
+    --exclude=Library/Containers/ \
+    --exclude=Library/Mobile\ Documents/ \
+    --exclude=dissertation/ \
+    --exclude=Applications/ \
+    --exclude=Steam/ \
+    --exclude=.l/ \
+    --exclude="*.sock" \
+    --exclude="*socket" \
+    --exclude=sockets/ \
+    --exclude=CloudStorage/ \
+    --exclude=WebKit/ \
+    --exclude=iCloud/ \
+    --exclude=Application\ Support/Google/ \
+    --exclude=Application\ Support/Adobe/ \
+    --exclude=ApplicationSupport/ \
+    --exclude=Saved\ Application\ State/ \
+    --filter="- .julia/**" \
+    --filter="+ .julia/config" \
+    --filter="+ .julia/environments" \
+    --exclude=.Trash/

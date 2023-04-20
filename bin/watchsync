@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "rsync -v -a --exclude .git $1 $2"
+rsync -av --exclude .git $1 $2
+fswatch -o . | while read f; do
+    rsync -v -a --exclude .git $1 $2
+done

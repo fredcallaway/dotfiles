@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ssh -o "StrictHostKeyChecking=no" -i ~/.ssh/fred-ec2-key ubuntu@$1

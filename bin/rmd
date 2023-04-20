@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import fire
+import subprocess
+import os
+import re
+# def run(cmd, **kwargs):
+#     # print(cmd)
+#     return subprocess.run(cmd, check=True, shell=True, **kwargs)
+
+def run(cmd, **kwargs):
+    popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, shell=True, **kwargs)
+    lines = []
+    for line in popen.stderr:
+        lines.append(line.decode())
+        print(lines[-1], end='')
+    popen.stderr.close()
+    return_code = popen.wait()
+    return ''.join(lines), return_code
+
+
+def print_error(stderr):
+    match = re.search(r"Quitting from lines (\d+)-\d+ \((\S+.rmd)\)\s*\n(.*)\n", stderr, re.MULTILINE)
+    line, file, msg = match.groups()
+    for trim in ['Error: ', 'Error in ']:
+        if msg.startswith(trim):
+            msg = msg[len(trim):]
+    line = int(line) - 1 # to get to cell
+    print(f'ERROR at {file}:{line} {msg}')
+    # match = re.search(r"eval -> eval -> (.*)", stderr)
+    # print(match.group(1))
+
+
+def main(filename, output_file=None, **params):
+    if not filename.endswith('.rmd'):
+        filname += '.rmd'
+    if output_file is None:
+        output_file = 'reports/' + os.path.basename(filename)[:-len('.rmd')]
+        if params:
+            output_file += '_' + '_'.join(k for k in params.values())
+        output_file += '.html'
+
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    r_params = 'list(' + ', '.join(f"{k} = '{v}'" for k, v in params.items()) + ')'
+
+    cmd = f"""rmarkdown::render('{filename}', encoding = 'UTF-8', params = {r_params}, output_file = '{output_file}' )"""
+    stderr, code = run(f'R -e "{cmd}"')
+    if code:
+        # try:
+        print_error(stderr)
+        # except:
+            # print("Could not parse error:\n", stderr)
+        exit(1)
+    run(f"open -a 'Google Chrome' '{output_file}'")
+
+if __name__ == '__main__':
+  fire.Fire(main)

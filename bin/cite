@@ -1,0 +1,9 @@
+function cite {
+    citekey=$(
+        bibtex-ls --cache=/tmp ~/lib/zotero.bib |
+        fzf --ansi --height=20% --query=$1 |
+        bibtex-cite |
+        tr -d '@'
+    )
+    bibtool --print.align.key=0 --print.line.length=100 -X $citekey ~/lib/zotero.bib | pbcopy
+}

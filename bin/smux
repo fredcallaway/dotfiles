@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+port=${2:-8000}
+autossh -M 0 -L 8000:localhost:$port fredcallaway@$1 -t 'tmux -CC new -A -s main'

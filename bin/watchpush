@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+src=`pwd`
+dest=${1}:/jukebox/griffiths/people/flc2/${src##*/Users/fred/Projects/}
+push_cmd="rsync -av --exclude *.git $src/ $dest/"
+echo $push_cmd
+eval $push_cmd
+fswatch -o $src/ | while read f; do eval $push_cmd ; done

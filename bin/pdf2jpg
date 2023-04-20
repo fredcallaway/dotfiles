@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+for file in "$@"; do
+    convert           \
+       -verbose       \
+       -density 150   \
+       -trim          \
+        $file           \
+       -quality 100   \
+       -flatten       \
+       -sharpen 0x1.0 \
+        ${file%.pdf}.jpg
+done

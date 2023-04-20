@@ -1,0 +1,9 @@
+echo `readlink -f "$1"`
+osascript \
+    -e 'on run{a}' \
+    -e 'tell application "Alfred 5" to search a' \
+    -e 'tell application "System Events" to keystroke (ASCII character 09)' \
+    -e 'tell application "System Events" to keystroke "Copy File"' \
+    -e 'tell application "System Events" to keystroke (ASCII character 13)' \
+    -e end \
+    "`readlink -f "$@"`"

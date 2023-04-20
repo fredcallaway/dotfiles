@@ -1,0 +1,27 @@
+#!/bin/zsh
+
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+--color=gutter:-1,bg+:-1
+--color=hl+:#88f397,hl:#76D384
+--color=fg+:#eaeaea,fg:#CACACC
+--color=info:#7485ba,prompt:#f297cd,pointer:#f297cd
+--color=marker:#f297cd,spinner:#c4a9f4,header:#88f397
+'
+
+# function cite {
+#     citekey=echo $1 | tr -d '@'
+#     bibtool --print.align.key=0 --print.line.length=100 -X $citekey ~/lib/zotero.bib | pbcopy
+# }
+
+BIBFILE=~/lib/zotero.bib
+export PATH=/usr/local/bin:$PATH
+citekey=$(
+    bibtex-ls --cache=/tmp $BIBFILE |
+    fzf --ansi --height=100% --query=$1 \
+        --bind 'enter:become(vim {+})'
+    |
+    bibtex-cite
+)
+if [[ ! -z $citekey ]]; then
+    open "zotero://select/items/$citekey"
+fi

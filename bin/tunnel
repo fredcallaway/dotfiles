@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# autossh -M 0 -N -L localhost:8913:localhost:8913 scotty &
+# autossh -M 0 -N -L localhost:8914:localhost:8914 scotty &
+# autossh -M 0 -N -L localhost:8915:localhost:8915 scotty &
+# autossh -M 0 -N -L localhost:8916:localhost:8916 scotty &
+
+# echo Opened tunels at:
+# echo '  http://localhost:8913/'
+# echo '  http://localhost:8914/'
+# echo '  http://localhost:8915/'
+# echo '  http://localhost:8916/'

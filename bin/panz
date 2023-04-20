@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+filename="${1%.*}"
+panzer $1 -o $filename.tex
+fswatch -o $1 | while read f; do panzer ---quiet $1 -o $filename.tex ; done
