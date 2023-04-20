@@ -1,10 +1,10 @@
 rclone sync $HOME /Volumes/Files/home \
-    --checkers=4 \
     --copy-links --progress --checkers=2\
     --exclude=Dropbox/ \
     --exclude=meta/ \
     --exclude=Movies/ \
     --exclude=website/ \
+    --exclude=Library/ \
     --exclude=Library/Containers/ \
     --exclude=Library/Mobile\ Documents/ \
     --exclude=dissertation/ \
@@ -17,6 +17,7 @@ rclone sync $HOME /Volumes/Files/home \
     --exclude=CloudStorage/ \
     --exclude=WebKit/ \
     --exclude=iCloud/ \
+    --exclude=.Trash/ \
     --exclude=Application\ Support/Google/ \
     --exclude=Application\ Support/Adobe/ \
     --exclude=ApplicationSupport/ \
