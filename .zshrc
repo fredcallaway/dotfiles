@@ -15,7 +15,9 @@ alias gwd='git diff --word-diff'
 alias gco='git checkout'
 alias gcm='git checkout main'
 alias gd='git diff'
-alias rg='rg --no-ignore'
+
+alias ambs='ambs --row'
+alias rg='rg --max-columns 2000'
 
 
 command -v duf &> /dev/null && \
