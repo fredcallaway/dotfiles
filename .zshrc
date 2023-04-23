@@ -248,16 +248,6 @@ function iterm {
     printf "\033]1337;Custom=id=zebra:%s\a" "$*"
 }
 
-function launch_project {
-    while [ true ]; do
-        project=`\ls -t /Users/fred/sublime-projects/*.sublime-workspace | sed 's/.*\/\(.*\)\.sublime-workspace/\1/' | fzf`
-        [ $status -ne 0 ] && return
-        iterm project $project
-        subl "/Users/fred/sublime-projects/$project.sublime-workspace"
-        osascript -e 'tell application "System Events" to keystroke "7"'
-    done
-}
-
 function notify {
     osascript -e "display notification \"$1\" with title \"Terminal Notification\""
 }
