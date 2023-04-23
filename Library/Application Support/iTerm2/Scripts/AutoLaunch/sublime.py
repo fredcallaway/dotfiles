@@ -1,99 +1,49 @@
-import os
 import sys
-import re
-from functools import wraps
-import traceback
-import asyncio
-import iterm2
-import json
+sys.path.insert(0, '../')
+from lib import *
 
-WINDOW_IDS = {}
+import json
 
 FIFO_PATH = "/tmp/iterm_fifo"
 if not os.path.exists(FIFO_PATH):
     os.mkfifo(FIFO_PATH)
 
-
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("/tmp/iterm.log"),
-        logging.StreamHandler()
-    ]
-)
-
-async def create_window(connection, project, folder='~', ssh=None):
-    tmux = '/usr/local/bin/tmux'
-    if ssh in ('g1', 'g2', 'scotty'):
-        tmux = '~/bin/tmux'
-    folder = os.path.expanduser(folder).replace(' ','\\ ')
-    cmd = rf'''
-        {tmux} -CC new-session -A -s {project} 'cd {folder}; zsh --login'
-    '''.strip()
-    logging.info(f'create_window: {cmd}')
-    if ssh:
-        cmd = f"ssh -t {ssh} '{cmd}'"
-
-    logging.info(f'create_window: {cmd}')
-    window = await iterm2.Window.async_create(connection, command=cmd, profile='tmuxconn')
-    WINDOW_IDS[project] = window.window_id
-    return window
-
-async def get_window(app, project, file_name=None):
-    window = app.get_window_by_id(WINDOW_IDS.get(project))
-    if window != None:
-        return window
-    print('looking for window...')
-    for window in app.windows:
-        try:
-            status = await window.current_tab.current_session.async_get_variable('tmuxStatusLeft')
-        except:
-            pass
-        else:
-            this_project = status[2:-3] if status else None  # e.g.  "[ main ]"
-            if this_project == project:
-                WINDOW_IDS[project] = window.window_id
-                print('  found it!')
-                return window
-
-async def get_tab(app, file_name):
-    if app.current_window:
-        for tab in app.current_window.tabs:
-            # could try getting a more specific variable here
-            title = await tab.async_get_variable('title')
-            if title[2:] == file_name:
-                return tab
-
-def project_name(session):
-    print('session_name is ', session.name)
-    match = re.search(r'new-session -A -s ([\w_-]+)', session.name)
-    if match:
-        return match.group(1)
-
-async def get_tmux(connection, project):
-    # get tmux connection
-    tmux_conns = await iterm2.async_get_tmux_connections(connection)
-    for conn in tmux_conns:
-        this_project = await conn.async_send_command("display-message -p '#S'")
-        if this_project == project:
-            return conn
-
-    raise Exception("Could not find tmux connection for " + project)
+def read_message():
+    with open(FIFO_PATH, 'r') as f:
+        return json.load(f)
 
 
-class Commander(object):
-    """Runs commands"""
-    def __init__(self, connection, app, vars_):
-        self.vars = vars_
+class SublimeCommand(object):
+    """Runs commands sent from sublime."""
+    def __init__(self, connection, app):
         self.connection = connection
         self.app = app
+
+    async def run(self, msg):
+        self.vars = msg['vars']
+        command = msg['command']
+
         self.project = self.vars.get('project_base_name', 'main')
         self.folder = self.vars.get('folder', '~')
         self.file_name = self.vars.get('file_name', None)
         self.file_path = self.vars.get('file_path', None)
 
+        logging.info(f'SublimeCommand: {command}')
+        handler = {
+            'TermFocus': self.focus,
+            'StartTerm': self.start_term,
+            'CloseTerm': self.close_term,
+            'StartRepl': self.start_repl,
+            'TermSendText': self.send_text,
+            'LazyGit': self.lazygit,
+        }.get(command, None)
+        if handler:
+            try:
+                await handler(**msg['kws'])
+            except iterm2.rpc.RPCException:
+                logging.info("RPCException")
+        else:
+            logging.info('No handler for ' + command)
 
     async def focus(self, focus_tab=True):
         window = await get_window(self.app, self.project)
@@ -119,7 +69,7 @@ class Commander(object):
 
         window = await get_window(self.app, self.project)
         if window is None:
-            print("No Terminal Found")
+            logging.info("No Terminal Found")
             return
 
         tmux = await get_tmux(self.connection, self.project)
@@ -130,11 +80,12 @@ class Commander(object):
     async def send_text(self, text):
         window = await get_window(self.app, self.project)
         if window is None:
+            logging.warning("couldn't find a window")
             return
         session = window.current_tab.current_session
+        # logging.info("sending text: " + text)
         await session.async_send_text(text + '\n')
         await window.async_activate()
-        1
 
     async def start_term(self):
         window = await get_window(self.app, self.project)
@@ -150,61 +101,30 @@ class Commander(object):
                 try:
                     await session.async_close()
                 except:
-                    print('Unable to close session')
+                    logging.info('Unable to close session')
                 return
 
-    async def lazy_git(self):
-        cmd = f"zsh -ic 'cd \"{self.folder}\" && lazygit'"
-        window = await get_window(self.app, self.project)
-        if window is None:
-            await iterm2.Window.async_create(self.connection, command=cmd)
-        else:
-            # check if already exists and activate
-            lg_tab = None
-            for tab in window.tabs:
-                for session in tab.sessions:
-                    if (await session.async_get_variable("user.lazygit")):
-                        lg_tab = tab
-                        break
-            if lg_tab is None:
-                tab = await window.async_create_tab(command=cmd)
-                await tab.current_session.async_set_variable("user.lazygit", True)
-                await tab.async_activate()
+    async def lazygit(self):
+        id_ = 'lazygit_' + self.folder.replace(' ', '')
+        await singleton(self.connection, 'lazygit', cd=self.folder)
 
-        await self.app.async_activate()
+        # cmd = f"zsh -ic 'cd \"{self.folder}\" && lazygit'"
+        # await singleton(self.connection, cmd, id_)
 
 
-
-def read_message():
-    with open(FIFO_PATH, 'r') as f:
-        return json.load(f)
 
 async def main(connection):
+    logging.info('start sublime listener')
     app = await iterm2.async_get_app(connection)
 
     while True:
         try:
             msg = read_message()
         except json.decoder.JSONDecodeError:
-            print("JSON decoding error")
+            logging.info("JSON decoding error")
             continue
-        command = msg['command']
-        print(command)
-        commander = Commander(connection, app, msg['vars'])
-        handler = {
-            'TermFocus': commander.focus,
-            'StartTerm': commander.start_term,
-            'CloseTerm': commander.close_term,
-            'StartRepl': commander.start_repl,
-            'TermSendText': commander.send_text,
-            'LazyGit': commander.lazy_git,
-        }.get(command, None)
-        if handler:
-            try:
-                await handler(**msg['kws'])
-            except iterm2.rpc.RPCException:
-                print("RPCException")
-        else:
-            print('No handler for', command)
+
+        await SublimeCommand(connection, app).run(msg)
 
 iterm2.run_forever(main)
+1
