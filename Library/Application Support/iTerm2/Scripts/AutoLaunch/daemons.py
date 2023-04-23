@@ -94,13 +94,7 @@ async def main(connection):
             if cmd == 'htop':
                 await htop()
             if cmd == 'project':
-                project = args[0]
-                window = await get_window(connection, project)
-                if window:
-                    await window.async_activate()
-                else:
-                    await create_window(connection, project)
-
+                await activate_project()
 
 
 # This instructs the script to run the "main" coroutine and to keep running even after it returns.

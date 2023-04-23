@@ -124,7 +124,12 @@ async def main(connection):
             logging.info("JSON decoding error")
             continue
 
-        await SublimeCommand(connection, app).run(msg)
+        if 'vars' in msg:
+            await SublimeCommand(connection, app).run(msg)
+        else:
+            if msg['command'] == 'project':
+                await activate_project(connection, msg['kws']['project'])
+
 
 iterm2.run_forever(main)
 1

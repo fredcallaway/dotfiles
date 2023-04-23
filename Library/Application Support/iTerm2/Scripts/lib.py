@@ -18,6 +18,15 @@ logging.basicConfig(
     ]
 )
 
+async def activate_project(connection, project):
+    app = await iterm2.async_get_app(connection)
+    window = await get_window(app, project)
+    if window:
+        await window.async_activate()
+    else:
+        await create_window(connection, project)
+
+
 async def create_window(connection, project, folder='~', ssh=None):
     tmux = '/usr/local/bin/tmux'
     if ssh in ('g1', 'g2', 'scotty'):
@@ -34,7 +43,6 @@ async def create_window(connection, project, folder='~', ssh=None):
     window = await iterm2.Window.async_create(connection, command=cmd, profile='tmuxconn')
     WINDOW_IDS[project] = window.window_id
     return window
-
 
 async def get_window(app, project, file_name=None):
     window = app.get_window_by_id(WINDOW_IDS.get(project))
