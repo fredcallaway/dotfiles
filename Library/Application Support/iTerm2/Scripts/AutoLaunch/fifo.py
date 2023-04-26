@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '../')
+# sys.path.insert(0, '/Users/fred/Library/Application Support/iTerm2/Scripts/AutoLaunch')
 from lib import *
 
 import json
@@ -10,8 +10,16 @@ if not os.path.exists(FIFO_PATH):
 
 def read_message():
     with open(FIFO_PATH, 'r') as f:
-        return json.load(f)
-
+        txt = f.read()
+        print('read_message', txt)
+        if txt.startswith('{'):
+            try:
+                return json.loads(txt)
+            except json.decoder.JSONDecodeError:
+                logging.error("JSON decoding error: %s", txt)
+                return None
+        else:
+            return txt
 
 class SublimeCommand(object):
     """Runs commands sent from sublime."""
@@ -43,7 +51,7 @@ class SublimeCommand(object):
             except iterm2.rpc.RPCException:
                 logging.info("RPCException")
         else:
-            logging.info('No handler for ' + command)
+            logging.error('No SublimeCommand handler for ' + command)
 
     async def focus(self, focus_tab=True):
         window = await get_window(self.app, self.project)
@@ -77,14 +85,14 @@ class SublimeCommand(object):
         await tab.async_set_title(self.file_name)
         await tab.current_session.async_send_text(f"cd \'{self.file_path}\' && {self.cmd}\n")
 
-    async def send_text(self, text):
+    async def send_text(self, text, end='\n'):
         window = await get_window(self.app, self.project)
         if window is None:
             logging.warning("couldn't find a window")
             return
         session = window.current_tab.current_session
         # logging.info("sending text: " + text)
-        await session.async_send_text(text + '\n')
+        await session.async_send_text(text + end)
         await window.async_activate()
 
     async def start_term(self):
@@ -101,7 +109,7 @@ class SublimeCommand(object):
                 try:
                     await session.async_close()
                 except:
-                    logging.info('Unable to close session')
+                    logging.warning('Unable to close session')
                 return
 
     async def lazygit(self):
@@ -111,25 +119,30 @@ class SublimeCommand(object):
         # cmd = f"zsh -ic 'cd \"{self.folder}\" && lazygit'"
         # await singleton(self.connection, cmd, id_)
 
-
+async def do_simple_action(connection, msg):
+    print('do simple', msg)
+    cmd, rest = msg.strip().split(' ', 1)
+    if cmd == 'project':
+        await activate_project(connection, rest)
+    elif cmd == 'window':
+        folder = rest
+        if not os.path.isdir(folder):
+            folder = os.path.dirname(folder)
+        await create_bare_window(connection, folder)
+    else:
+        logging.error(f"No simple_action handler for '{cmd}'")
 
 async def main(connection):
-    logging.info('start sublime listener')
+    logging.info('start fifo listener')
     app = await iterm2.async_get_app(connection)
 
     while True:
-        try:
-            msg = read_message()
-        except json.decoder.JSONDecodeError:
-            logging.info("JSON decoding error")
+        msg = read_message()
+        if msg is None:
             continue
-
-        if 'vars' in msg:
-            await SublimeCommand(connection, app).run(msg)
+        if isinstance(msg, str):
+            await do_simple_action(connection, msg)
         else:
-            if msg['command'] == 'project':
-                await activate_project(connection, msg['kws']['project'])
-
+            await SublimeCommand(connection, app).run(msg)
 
 iterm2.run_forever(main)
-1

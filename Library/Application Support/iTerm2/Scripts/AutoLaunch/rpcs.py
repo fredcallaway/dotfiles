@@ -7,7 +7,7 @@ import re
 import os
 import sys
 
-sys.path.insert(0, '../')
+# sys.path.insert(0, '../')
 from lib import *
 
 from iterm2 import Point

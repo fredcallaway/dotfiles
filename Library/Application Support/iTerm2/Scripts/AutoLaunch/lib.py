@@ -17,14 +17,20 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+from ast import literal_eval
 
 async def activate_project(connection, project):
     app = await iterm2.async_get_app(connection)
     window = await get_window(app, project)
     if window:
+        print('if window')
         await window.async_activate()
     else:
-        await create_window(connection, project)
+        print('else')
+        with open(f"/Users/fred/sublime-projects/{project}.sublime-project") as f:
+            folder = literal_eval(f.read())['folders'][0]['path']
+        await create_window(connection, project, folder=folder)
+    await app.async_activate()
 
 
 async def create_window(connection, project, folder='~', ssh=None):
@@ -42,6 +48,15 @@ async def create_window(connection, project, folder='~', ssh=None):
     logging.info(f'create_window: {cmd}')
     window = await iterm2.Window.async_create(connection, command=cmd, profile='tmuxconn')
     WINDOW_IDS[project] = window.window_id
+    return window
+
+async def create_bare_window(connection, folder=None):
+    window = await iterm2.Window.async_create(connection)
+    if folder is not None:
+        folder = os.path.expanduser(folder)
+        await window.current_tab.current_session.async_send_text(f"cd '{folder}'\n")
+        app = await iterm2.async_get_app(connection)
+        await app.async_activate()
     return window
 
 async def get_window(app, project, file_name=None):
@@ -70,7 +85,7 @@ async def get_tab(app, file_name):
                 return tab
 
 def project_name(session):
-    logging.info('session_name is ', session.name)
+    logging.info('session_name is %s', session.name)
     match = re.search(r'new-session -A -s ([\w_-]+)', session.name)
     if match:
         return match.group(1)
