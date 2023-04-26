@@ -202,6 +202,20 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 # function
 # xargs -n1 -I{} zsh -ic 'sdo "cd {}"'
 
+rga-fzf() {
+    RG_PREFIX="rga --files-with-matches"
+    local file
+    file="$(
+        FZF_DEFAULT_COMMAND="$RG_PREFIX '$1'" \
+            fzf --sort --preview="[[ ! -z {} ]] && rga --pretty --context 5 {q} {}" \
+                --phony -q "$1" \
+                --bind "change:reload:$RG_PREFIX {q}" \
+                --preview-window="70%:wrap"
+    )" &&
+    echo "opening $file" &&
+    open "$file"
+}
+
 split-run () {
     if [[ $# -eq 0 ]]; then
         # read from stdin
@@ -326,6 +340,7 @@ autoload -U compinit && compinit -u
 compdef __zoxide_z_complete j
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
 
 # ---------- bibliography ---------- #
 
