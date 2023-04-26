@@ -1,6 +1,6 @@
 options(
     radian.ctrl_key_map = list(
-        list(key = "m", value = " %>% ")
+        list(key = "o", value = " %>% ")
     ),
     radian.auto_suggest = TRUE,
     radian.complete_while_typing = FALSE
