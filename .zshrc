@@ -391,13 +391,24 @@ insert-do () {
   zle autosuggest-enable
   .zle_redraw-prompt
 }
+.zle_insert-path-broot () {
+  # insert-setup
+  local result=${(q-)$(<$TTY broot --color yes --conf "${HOME}/.config/broot/select.hjson;${HOME}/.config/broot/conf.hjson")}
+  if [[ $result != "''" ]]; then
+      insert-do $result
+  fi
+}
+zle -N .zle_insert-path-broot
+bindkey '^b' .zle_insert-path-broot  # ctrl+alt+down
 
 .zle_insert-path-lf () {
   insert-setup
   echo > /tmp/lf_insert
   command lf -command inserter
   local result=`cat /tmp/lf_insert`
-  insert-do $result
+  if [[ $result != "''" ]]; then
+      insert-do "'$result'"
+  fi
 }
 zle -N .zle_insert-path-lf
 bindkey '^f' .zle_insert-path-lf
@@ -405,18 +416,12 @@ bindkey '^f' .zle_insert-path-lf
 .zle_insert-path-zoxide () {
   insert-setup
   local result="$(zoxide query -i)"
-  insert-do $result
+  if [[ $result != "''" ]]; then
+      insert-do "'$result'"
+  fi
 }
 zle -N .zle_insert-path-zoxide
 bindkey '^p' .zle_insert-path-zoxide
-
-.zle_insert-path-broot () {
-  insert-setup
-  local result="${(q-)$(<$TTY broot --color yes --conf "${HOME}/.config/broot/select.hjson;${HOME}/.config/broot/conf.hjson")} "
-  insert-do $result
-}
-zle -N .zle_insert-path-broot
-bindkey '^b' .zle_insert-path-broot  # ctrl+alt+down
 
 .zle_redraw-prompt () {
   # Credit: romkatv/z4h
