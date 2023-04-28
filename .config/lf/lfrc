@@ -26,7 +26,7 @@ map CC clear
 cmd yank-path &printf '%s' "$fx" | pbcopy
 map yp yank-path
 
-cmd yank-base $basename -a -- $fx | head -c-1 | pbcopy
+cmd yank-base &echo "$fx" | xargs basename | pbcopy
 map yb yank-base
 
 map gf $lf -remote "send $id select $(fzf)"
