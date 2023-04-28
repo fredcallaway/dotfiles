@@ -1,4 +1,14 @@
 
+img {
+  zoom: 26%;
+/*  image-resolution: 120dpi;*/
+/*  height: 200px;*/
+/*  transform: scale(0.5);*/
+  display: block;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
 
 .workspace {
   --checklist-done-decoration:none;
