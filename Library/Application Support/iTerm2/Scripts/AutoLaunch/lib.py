@@ -5,6 +5,8 @@ import re
 import os
 import sys
 
+from fnmatch import fnmatch
+
 WINDOW_IDS = {}
 SINGLETON_TABS = {}
 
@@ -81,7 +83,8 @@ async def get_tab(app, file_name):
         for tab in app.current_window.tabs:
             # could try getting a more specific variable here
             title = await tab.async_get_variable('title')
-            if title[2:] == file_name:
+            # if title[2:] == file_name:
+            if fnmatch(file_name, title[2:]):
                 return tab
 
 def project_name(session):
