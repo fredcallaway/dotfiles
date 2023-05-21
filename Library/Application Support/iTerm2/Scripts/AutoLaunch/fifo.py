@@ -137,12 +137,16 @@ async def main(connection):
     app = await iterm2.async_get_app(connection)
 
     while True:
-        msg = read_message()
-        if msg is None:
-            continue
-        if isinstance(msg, str):
-            await do_simple_action(connection, msg)
-        else:
-            await SublimeCommand(connection, app).run(msg)
+        try:
+            msg = read_message()
+            if msg is None:
+                continue
+            if isinstance(msg, str):
+                await do_simple_action(connection, msg)
+            else:
+                await SublimeCommand(connection, app).run(msg)
+        except Exception as e:
+            await iterm2.Alert('Error in fifo.py', str(e)).async_run(connection)
+            logging.exception('Caught exception')
 
 iterm2.run_forever(main)

@@ -68,6 +68,7 @@ async def main(connection):
         regex = '(' + ')|('.join((
             r'In \[\d+\]: ',
             r'julia> ',
+            r'R> ',
             r'.* pkg> ',
             r'shell> ',
             r'r\$> ?',

@@ -9,7 +9,7 @@ alias r='radian'
 alias lg='lazygit'
 # alias tca='tmux -CC attach -t'
 alias tnew='tmux -CC new-session -s'
-alias x='xplr'
+alias chrome='open -a "Google Chrome"'
 
 alias gwd='git diff --word-diff'
 alias gco='git checkout'
@@ -201,6 +201,7 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 
 # function
 # xargs -n1 -I{} zsh -ic 'sdo "cd {}"'
+
 
 rga-fzf() {
     RG_PREFIX="rga --files-with-matches"
@@ -432,3 +433,11 @@ bindkey '^p' .zle_insert-path-zoxide
   zle .reset-prompt
   zle -R
 }
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+path=('/Users/fred/.juliaup/bin' $path)
+export PATH
+
+# <<< juliaup initialize <<<

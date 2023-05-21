@@ -129,6 +129,5 @@ async def singleton(connection, cmd, id_=None, cd=False, project=None):
         SINGLETON_TABS[id_] = tab.tab_id
         # await lg_tab.current_session.async_set_variable(f"user.{id_}", True)
     await tab.async_activate()
-
-    await tab.async_activate()
+    await app.async_activate()
     return

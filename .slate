@@ -93,14 +93,14 @@ alias 2-bottomright move ${originX}+${sizeX}/2;screenOriginY+screenSizeY/2    ${
 
 # Layouts
 
-layout coding 'Sublime Text':REPEAT              ${left}
 layout coding 'iTerm2':REPEAT                    ${right}
+layout coding 'Sublime Text':REPEAT              ${left}
 # bind pad7 sequence layout coding | focus 'iTerm2' | focus 'Sublime Text'
 bind pad7 layout coding
 
-layout plotting 'Sublime Text':REPEAT              ${left}
 layout plotting 'iTerm2':REPEAT                    ${bottom-right}
 layout plotting 'Xee³':REPEAT                    ${top-right}
+layout plotting 'Sublime Text':REPEAT              ${left}
 # bind pad8 sequence layout plotting | focus 'iTerm2' | focus 'Xee³' | focus 'Sublime Text'
 bind pad8 layout plotting
 
