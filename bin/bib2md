@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+import json
+import os
+import re
+import sys
+
+TOP = """\
+# {title}
+
+{authors} ({year}){format_pub}
+[zotero]({link}) {tags}
+
+"""
+
+BOTTOM = """\
+%% --- metadata ---
+title:: {title}
+authors:: {authors}
+year:: {year}
+publication:: {publication}
+added:: {added}
+modified:: {modified}
+status:: {status}
+link:: [{short_authors} ({year})]({link})
+%%
+"""
+
+TAG_MAP = {
+    '👉': 'important',
+    '🤖': 'ai'
+}
+
+def format_authors(item, short=False):
+    try:
+        if short:
+            names = [a.get('lastName', '') for a in item['creators']]
+        else:
+            names = [a.get('firstName', '') + ' ' + a.get('lastName', '') for a in item['creators']]
+
+        names = [n for n in names if n.strip()]
+        if len(names) == 1:
+            return names[0]
+        if len(names) == 2:
+            return ' & '.join(names)
+        else:
+            if len(names) > 3 and short:
+                one, two = names[:2]
+                last = names[-1]
+                return f'{one}, {two}...{last}'
+            else:
+                return ', '.join(names[:-1] ) + ' & ' + names[-1]
+    except:
+        return 'no authors'
+
+def format_date(item):
+    try:
+        if len(item['date']) == 4:
+            return item['date']
+        else:
+            dt = item['date'].split('-', 1)[0]
+            if len(dt) == 4:
+                return dt
+        return re.search(r'(\d{4})', item['date']).group(1)
+    except:
+        return 'n.d.'
+
+def format_pub(item):
+    if item['itemType'] == 'preprint':
+        return 'preprint'
+    for k in ['publicationTitle', 'bookTitle', 'conferenceName']:
+        if k in item:
+            return item[k]
+    return 'unknown'
+
+def format_tag(tag):
+    tag = TAG_MAP.get(tag, tag).replace(' ', '-')
+    return '#' + tag
+
+def metadata(item):
+    return {
+        "title": item['title'],
+        "authors": format_authors(item),
+        "short_authors": format_authors(item, short = True),
+        "year": format_date(item),
+        "publication":  format_pub(item) ,
+        "added": item['dateAdded'],
+        "modified": item['dateModified'],
+        "tags": [format_tag(x['tag']) for x in item['tags']],
+        "link": item['select']
+    }
+
+def zotero_link(item):
+    link = item['select']
+    return f'[zotero]({link})'
+
+
+with open('/users/fred/lib/zotero.json') as f:
+    bib = json.load(f)
+
+
+status = {}
+status_collections = bib['collections']['FYGNQ4KS']['collections']
+for k in status_collections:
+    c = bib['collections'][k]
+    for i in c['items']:
+        status[i] = c['name'][2:]
+
+
+def process(item, always=False):
+    # if item['citationKey'] == 'yao2023treea':
+    #     import IPython, time; IPython.embed(); time.sleep(0.5)
+
+    fn = '/users/fred/obsidian/papers/' + item['citationKey'] + '.md'
+    m = metadata(item)
+    m['status'] = status.get(item['itemID'], '')
+
+    if os.path.isfile(fn):
+        with open(fn, 'r') as f:
+            current = f.read()
+            top_i = current.index('**tldr**')
+            bottom_i = current.index('%% --- metadata ---')
+
+            # update tags
+            try:
+                i_hash = current.index('\n#') + 1
+                assert i_hash < top_i
+                current_tags = current[i_hash:current.index('\n', i_hash)].split(' ')
+                for t in m['tags']:
+                    if t not in current_tags:
+                        current_tags.append(t)
+                m['tags'] = current_tags
+            except Exception:
+                pass
+
+            # keep existing content
+            notes = current[top_i:bottom_i]
+    else:
+        current = ""
+        notes = "**tldr**:: " + 40 * '\n'
+
+    if os.path.isfile(fn) or m['tags'] or m['status'] or always:
+        m['tags'] = ' '.join(m['tags'])
+        if m['publication'] and m['publication'] != 'unknown':
+            m['format_pub'] = '\n_{publication}_'.format_map(m)
+        else:
+            m['format_pub'] = ''
+
+        updated = TOP.format_map(m) + notes + BOTTOM.format_map(m)
+        if updated != current:
+            with open(fn, 'w') as f:
+                print('wrote ', fn)
+                f.write(updated)
+
+def process_all():
+    for item in bib['items']:
+        if 'citationKey' not in item:
+            continue
+        try:
+            process(item)
+        except Exception as e:
+            print("Error on", item['citationKey'], e)
+
+def process_some(cite_keys):
+    cite_keys = set(cite_keys)
+    for item in bib['items']:
+        if 'citationKey' not in item:
+            continue
+        if item['citationKey'] in cite_keys:
+            cite_keys.pop()
+            process(item, always=True)
+    if cite_keys:
+        print("Some items not found!", cite_keys)
+
+
+# %% --------
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        process_some(sys.argv[1:])
+    else:
+        print("Processing all files")
+        process_all()
