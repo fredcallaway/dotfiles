@@ -1,3 +1,23 @@
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="-"] > *,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="x"] > *,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task=">"] > *,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task=">"]
+{
+  color: var(--text-faint) !important;
+}
+
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="!"] > *,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="!"]
+{
+  color: var(--color-orange) !important;
+}
+
+/*.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="*"] > *,
+.markdown-source-view.mod-cm6 .HyperMD-task-line[data-task="*"]
+{
+  color: var(--color-yellow) !important;
+}
+*/
 .markdown-source-view.mod-cm6 .cm-line {
     caret-color: white !important;
 }
@@ -107,7 +127,6 @@ img {
   --text-normal: #b2b6cd;
   --code-comment: #6272a4;
 
-
   --code-punctuation: var(--color-white);
   --code-value: var(--color-purple);
   --code-string: var(--color-yellow);
@@ -115,7 +134,6 @@ img {
   --code-property: var(--color-white);
   --code-function: var(--color-green);
   --code-keyword: var(--color-pink);
-/*  --code-important: var(--color-XXX);*/
   --code-normal: var(--color-white);
   --code-tag: var(--color-pink);
 
@@ -125,7 +143,6 @@ img {
 /*  --list-marker-color: var(--color-base-25);*/
 /*  --checklist-done-decoration:none;*/
 /*  --checklist-done-color:#888;*/
-
 }
 
 span.cm-comment {

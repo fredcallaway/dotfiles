@@ -7,7 +7,7 @@ import re
 import os
 import sys
 
-# sys.path.insert(0, '../')
+sys.path.insert(0, '/Users/fred/Library/Application Support/iTerm2/Scripts')
 from lib import *
 
 from iterm2 import Point
@@ -63,7 +63,6 @@ async def main(connection):
         sub = iterm2.SubSelection(windowedCoordRange, iterm2.SelectionMode.CHARACTER, False)
         selection = iterm2.Selection([sub])
         text = await session.async_get_selection_text(selection)
-        print('before:', text)
         text = text.strip()
         regex = '(' + ')|('.join((
             r'In \[\d+\]: ',
@@ -76,7 +75,6 @@ async def main(connection):
             r'❯ ',
         )) + ')'
         text = re.sub(regex, '', text)
-        print('after sub:', text)
         with open('/tmp/clip', 'w') as f:
             f.write(text)
 
@@ -84,18 +82,18 @@ async def main(connection):
         os.system(f'''cat /tmp/clip | pbcopy''')
     await copy_line.async_register(connection)
 
-    async with iterm2.CustomControlSequenceMonitor(connection, "zebra", r'(\w+) ?(.*)') as mon:
-        while True:
-            match = await mon.async_get()
-            cmd = match.group(1)
-            args = match.group(2).split(' ')
-            print(cmd, args)
-            if cmd == 'lazygit':
-                await lazygit()
-            if cmd == 'htop':
-                await htop()
-            if cmd == 'project':
-                await activate_project()
+    # async with iterm2.CustomControlSequenceMonitor(connection, "zebra", r'(\w+) ?(.*)') as mon:
+    #     while True:
+    #         match = await mon.async_get()
+    #         cmd = match.group(1)
+    #         args = match.group(2).split(' ')
+    #         print(cmd, args)
+    #         if cmd == 'lazygit':
+    #             await lazygit()
+    #         if cmd == 'htop':
+    #             await htop()
+    #         if cmd == 'project':
+    #             await activate_project()
 
 
 # This instructs the script to run the "main" coroutine and to keep running even after it returns.

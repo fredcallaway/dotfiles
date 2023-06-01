@@ -1,5 +1,5 @@
 import sys
-# sys.path.insert(0, '/Users/fred/Library/Application Support/iTerm2/Scripts/AutoLaunch')
+sys.path.insert(0, '/Users/fred/Library/Application Support/iTerm2/Scripts')
 from lib import *
 
 import json
@@ -11,7 +11,7 @@ if not os.path.exists(FIFO_PATH):
 def read_message():
     with open(FIFO_PATH, 'r') as f:
         txt = f.read()
-        print('read_message', txt)
+        logging.info('read_message %s', txt)
         if txt.startswith('{'):
             try:
                 return json.loads(txt)
@@ -120,7 +120,7 @@ class SublimeCommand(object):
         # await singleton(self.connection, cmd, id_)
 
 async def do_simple_action(connection, msg):
-    print('do simple', msg)
+    logging.info('do_simple_action %s', msg)
     cmd, rest = msg.strip().split(' ', 1)
     if cmd == 'project':
         await activate_project(connection, rest)

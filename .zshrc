@@ -16,7 +16,7 @@ alias gco='git checkout'
 alias gcm='git checkout main'
 alias gd='git diff'
 
-alias ambs='ambs --row'
+alias ambs='ambs --row --column'
 alias rg='rg --max-columns 2000'
 
 
@@ -62,6 +62,7 @@ bindkey '^ ' autosuggest-accept
 bindkey '^f' fzf-file-widget
 
 # ---------- misc ---------- #
+export KALEIDOSCOPE_DIR=${HOME}/lib/Kaleidoscope
 
 export LS_COLORS='di=34:or=31:ln=36:ex=32'
 
@@ -89,7 +90,7 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=247'
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # export ZSHZ_CASE=smart
 
-export PATH=$HOME/bin:$HOME/opt/miniconda3/bin:$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH
+export PATH=$HOME/bin:$HOME/opt/miniconda3/bin:$HOME/homebrew/bin:$HOME/homebrew/sbin:/usr/local/lib/ruby/gems/3.0.0/bin/:$PATH
 export JULIA_SSL_CA_ROOTS_PATH=""
 export WORDCHARS=${WORDCHARS//[\/]}  # treat / as word boundary
 

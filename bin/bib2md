@@ -4,14 +4,16 @@ import os
 import re
 import sys
 
+
+
 TOP = """\
 # {title}
 
-{authors} ({year}){format_pub}
-[zotero]({link}) {tags}
+{authors} ({year})
+_{publication}_  [📄]({link})
+{tags}
 
 """
-
 BOTTOM = """\
 %% --- metadata ---
 title:: {title}
@@ -27,8 +29,24 @@ link:: [{short_authors} ({year})]({link})
 
 TAG_MAP = {
     '👉': 'important',
-    '🤖': 'ai'
+    '🤖': 'AI'
 }
+TAG_PROJECTS = {
+    'autonomy': 'Autonomy',
+    'culture': 'Current Directions Paper',
+    'social-options': 'Social Options',
+    'eyeplan': 'Eye Plan',
+}
+
+import logging
+logging.basicConfig(
+    format='%(asctime)s  %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+def log(*args):
+    msg = ' '.join(map(str, args))
+    logging.info(msg)
 
 def format_authors(item, short=False):
     try:
@@ -65,16 +83,30 @@ def format_date(item):
         return 'n.d.'
 
 def format_pub(item):
-    if item['itemType'] == 'preprint':
-        return 'preprint'
+    if item['itemType'] == 'prelog':
+        return 'prelog'
     for k in ['publicationTitle', 'bookTitle', 'conferenceName']:
         if k in item:
             return item[k]
     return 'unknown'
 
-def format_tag(tag):
-    tag = TAG_MAP.get(tag, tag).replace(' ', '-')
-    return '#' + tag
+def format_tags(tags):
+    projects = []
+    other_tags = []
+    for tag in tags:
+        if tag in TAG_PROJECTS:
+            projects.append(f'[[{TAG_PROJECTS[tag]}]]')
+        else:
+            other_tags.append('#' + TAG_MAP.get(tag, tag).replace(' ', '-'))
+
+    return '  '.join(projects) + '  ' + ' '.join(other_tags)
+
+def make_link(item):
+    for a in item['attachments']:
+        if a.get('path', '').endswith('.pdf'):
+            akey = a['uri'].rsplit('/', 1)[-1]
+            return 'zotero://open-pdf/library/items/' + akey
+    return item['select']
 
 def metadata(item):
     return {
@@ -85,8 +117,9 @@ def metadata(item):
         "publication":  format_pub(item) ,
         "added": item['dateAdded'],
         "modified": item['dateModified'],
-        "tags": [format_tag(x['tag']) for x in item['tags']],
-        "link": item['select']
+        # "tags": [format_tag(x['tag']) for x in item['tags']],
+        "tags": [x['tag'] for x in item['tags']],
+        "link": make_link(item)
     }
 
 def zotero_link(item):
@@ -107,7 +140,7 @@ for k in status_collections:
 
 
 def process(item, always=False):
-    # if item['citationKey'] == 'yao2023treea':
+    # if item['citationKey'] == 'dimaggio1997culture':
     #     import IPython, time; IPython.embed(); time.sleep(0.5)
 
     fn = '/users/fred/obsidian/papers/' + item['citationKey'] + '.md'
@@ -121,16 +154,16 @@ def process(item, always=False):
             bottom_i = current.index('%% --- metadata ---')
 
             # update tags
-            try:
-                i_hash = current.index('\n#') + 1
-                assert i_hash < top_i
-                current_tags = current[i_hash:current.index('\n', i_hash)].split(' ')
-                for t in m['tags']:
-                    if t not in current_tags:
-                        current_tags.append(t)
-                m['tags'] = current_tags
-            except Exception:
-                pass
+            # try:
+            #     i_hash = current.index('\n#') + 1
+            #     assert i_hash < top_i
+            #     current_tags = current[i_hash:current.index('\n', i_hash)].split(' ')
+            #     for t in m['tags']:
+            #         if t not in current_tags:
+            #             current_tags.append(t)
+            #     m['tags'] = current_tags
+            # except Exception:
+            #     pass
 
             # keep existing content
             notes = current[top_i:bottom_i]
@@ -139,16 +172,16 @@ def process(item, always=False):
         notes = "**tldr**:: " + 40 * '\n'
 
     if os.path.isfile(fn) or m['tags'] or m['status'] or always:
-        m['tags'] = ' '.join(m['tags'])
+        m['tags'] = format_tags(m['tags'])
         if m['publication'] and m['publication'] != 'unknown':
-            m['format_pub'] = '\n_{publication}_'.format_map(m)
+            m['format_pub'] = '_{publication}_'.format_map(m)
         else:
-            m['format_pub'] = ''
+            m['format_pub'] = 'unknown'
 
         updated = TOP.format_map(m) + notes + BOTTOM.format_map(m)
         if updated != current:
             with open(fn, 'w') as f:
-                print('wrote ', fn)
+                log('wrote ', fn)
                 f.write(updated)
 
 def process_all():
@@ -158,7 +191,7 @@ def process_all():
         try:
             process(item)
         except Exception as e:
-            print("Error on", item['citationKey'], e)
+            logging.exception("Error on " + item['citationKey'])
 
 def process_some(cite_keys):
     cite_keys = set(cite_keys)
@@ -169,7 +202,7 @@ def process_some(cite_keys):
             cite_keys.pop()
             process(item, always=True)
     if cite_keys:
-        print("Some items not found!", cite_keys)
+        log("Some items not found!", cite_keys)
 
 
 # %% --------
@@ -177,5 +210,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         process_some(sys.argv[1:])
     else:
-        print("Processing all files")
+        log("Processing all files")
         process_all()
