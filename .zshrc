@@ -45,7 +45,8 @@ function confedit {
     selection="`conflist | fzf --query=$1 -1`"
     [ -z "$selection" ] && return
     subl -nw "$HOME/$selection"
-    confshow
+    confgit add "$HOME/$selection"
+    confgit commit -m "update $selection"
     [[ $selection == ".zshrc" ]] && source $HOME/.zshrc
 }
 
@@ -63,6 +64,7 @@ bindkey '^f' fzf-file-widget
 
 # ---------- misc ---------- #
 export KALEIDOSCOPE_DIR=${HOME}/lib/Kaleidoscope
+export PROLFIIC_TOKEN='iruHWn9__Y0OT9KEoBzbGeK8N213z6GgWtmpnBMUBdmDAtOwmY0I7QsWy8Q1xrVBtVXOL6czugWo_2TZzZVVUzkZK5rizI8UhJmJSPXUq8VfmTZ4frPNrHvR'
 
 export LS_COLORS='di=34:or=31:ln=36:ex=32'
 

@@ -171,6 +171,8 @@ def process(item, always=False):
         current = ""
         notes = "**tldr**:: " + 40 * '\n'
 
+    import IPython, time; IPython.embed(); time.sleep(0.5)
+
     if os.path.isfile(fn) or m['tags'] or m['status'] or always:
         m['tags'] = format_tags(m['tags'])
         if m['publication'] and m['publication'] != 'unknown':

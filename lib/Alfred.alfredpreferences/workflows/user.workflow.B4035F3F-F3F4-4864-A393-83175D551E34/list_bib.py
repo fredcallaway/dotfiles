@@ -86,7 +86,7 @@ def format_output(md):
     return {
         "title": md['title'],
         "match": '{citekey} @{citekey} {title} {authors} {year} {publication} {tags}'.format_map(md),
-        "subtitle": '{authors} ({year})'.format_map(md),
+        "subtitle": '{short_authors} ({year}) {publication}'.format_map(md),
         "arg": md['citekey'],
         "icon": {"path": get_icon(md['type'])},
         # "autocomplete": "Desktop",

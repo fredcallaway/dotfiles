@@ -1,0 +1,24 @@
+#!/bin/zsh
+
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+--color=gutter:-1,bg+:-1
+--color=hl+:#88f397,hl:#76D384
+--color=fg+:#eaeaea,fg:#CACACC
+--color=info:#7485ba,prompt:#f297cd,pointer:#f297cd
+--color=marker:#f297cd,spinner:#c4a9f4,header:#88f397
+'
+export PATH=/usr/local/bin:$PATH
+
+function iterm {
+    printf "\033]1337;Custom=id=zebra:%s\a" "$*"
+}
+
+project=$(
+    \ls -t /Users/fred/sublime-projects/*.sublime-workspace |
+    sed 's/.*\/\(.*\)\.sublime-workspace/\1/' |
+    fzf
+)
+[ $status -ne 0 ] && exit
+iterm project $project
+~/bin/subl "/Users/fred/sublime-projects/$project.sublime-workspace"
+osascript -e 'tell application "System Events" to keystroke "7"'
