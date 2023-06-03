@@ -17,7 +17,7 @@ if isfile(hist_file)
 end
 
 using Pkg
-if isfile("Project.toml") && isfile("Manifest.toml")
+if isfile("Project.toml")
     Pkg.activate(".")
 end
 
